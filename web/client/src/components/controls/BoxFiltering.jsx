@@ -32,11 +32,13 @@ export default function BoxFiltering({boxes, setFilteredBoxes}) {
 
 	useEffect(() => {
 		const updateFilteredBoxes = () => {
-			setFilteredBoxes(boxes?.filter((box) =>
-				(box[selectedOption] === selectedField || selectedOption === 'all')
-				&&
-				(getProgress(box.scans) === progressFilter || progressFilter === 'any')
-			));
+			setFilteredBoxes(boxes?.filter((box) => {
+				return (
+					(box[selectedOption] === selectedField || selectedOption === 'all')
+					&&
+					(getProgress(box) === progressFilter || progressFilter === 'any')
+				)
+			}));
 		}
 
 		updateFilteredBoxes();
