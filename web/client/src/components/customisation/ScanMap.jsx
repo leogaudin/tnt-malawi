@@ -3,9 +3,11 @@ import { MapContainer, TileLayer, Popup, Polyline, LayerGroup, CircleMarker } fr
 import { getLatLngCenter, getZoomLevel } from '../../service/mapUtils';
 import { Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { createPalette } from '../../theme/create-palette';
 
 function ScanMap({ scans, scansCount }) {
 	const [scansLoaded, setScansLoaded] = useState(false);
+	const palette = createPalette();
 	const { t } = useTranslation();
 
 	useEffect(() => {
@@ -38,12 +40,14 @@ function ScanMap({ scans, scansCount }) {
 										scan?.location.coords.longitude
 									]}
 									fill
-									fillColor='#0B71E7'
-									color='#0B71E7'
+									fillColor={palette.primary.main}
+									color={palette.primary.main}
 									fillOpacity={.7}
 									zIndexOffset={20}
 									key={scan?.id}
-									radius={(scan?.location.coords.accuracy) / 500 + 1}
+									radius={(scan?.location.coords.accuracy) / 500 > 10
+									? (scan?.location.coords.accuracy) / 500
+									: 10}
 								>
 									<Popup>
 										<code>{scan?.operatorId}</code><br />
@@ -55,7 +59,7 @@ function ScanMap({ scans, scansCount }) {
 						})
 					}
 				</LayerGroup>
-				<Polyline positions={coords} color='white' opacity={.7} />
+				<Polyline positions={coords} color={palette.primary.main} opacity={.7} />
 			</MapContainer >
 		);
 	} else if (scansCount === 0) {
