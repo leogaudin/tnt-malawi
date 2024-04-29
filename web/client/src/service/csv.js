@@ -54,7 +54,7 @@ function parseCSV(text, setUploadProgress, setResults, setIsLoading, setComplete
 }
 
 function uploadBoxes(boxes, setUploadProgress, setResults, setIsLoading, setComplete) {
-	const BUFFER_LENGTH = 15;
+	const BUFFER_LENGTH = 500;
 	const numBoxes = boxes.length;
 	let bufferStartIndex = 0;
 	const responses = [];
