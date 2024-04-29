@@ -68,7 +68,7 @@ export default function BoxSummary({ id, open, setOpen }) {
 						: false}
 						{scanData?.length ?
 							<Grid item xs={12}>
-								<ScansOverview overrideScans={scanData} disableDialogs />
+								<ScansOverview overrideScans={scanData} translateTimeIndex={0} />
 							</Grid>
 							: null}
 					</Grid>

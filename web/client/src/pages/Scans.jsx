@@ -35,7 +35,7 @@ export default function Scans() {
 					</Button>
 				</Grid>
 				<Grid item xs={12}>
-					<ScansOverview searchEnabled />
+					<ScansOverview searchEnabled translateTimeIndex={1} />
 				</Grid>
 			</Grid>
 		</>
