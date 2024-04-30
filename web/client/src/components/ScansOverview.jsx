@@ -16,6 +16,7 @@ function ScansOverview({
 	const { t } = useTranslation();
 
 	const scans = useMemo(() => {
+		if (overrideScans || !boxes) return null;
 		return boxes.reduce((acc, box) => {
 			if (!box.scans) return acc;
 			box.scans.forEach(scan => {
@@ -37,7 +38,7 @@ function ScansOverview({
 	const rows = useMemo(() => {
 		return sortedScans && sortedScans.map((scan) => {
 			const row = [];
-			const box = boxes.find(box => box.id == scan.boxId);
+			const box = boxes?.find(box => box.id == scan.boxId);
 			// if (!disableDialogs)
 			// 	row.push(scan.boxId);
 			if (!overrideScans)
