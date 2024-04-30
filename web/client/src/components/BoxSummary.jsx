@@ -72,7 +72,13 @@ export default function BoxSummary({ id, open, setOpen }) {
 							</Grid>
 							: null}
 					</Grid>
-					{scanData?.length && !isMobile ? <Map scans={scanData} scansCount={scanData.length} /> : null}
+					{scanData?.length && !isMobile &&
+						<Map
+							box={boxData}
+							scans={scanData}
+							scansCount={scanData.length}
+						/>
+					}
 				</Stack>
 				<ConfirmDialog
 					open={openDeleteDialog}

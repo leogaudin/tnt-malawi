@@ -5,7 +5,11 @@ import { Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { createPalette } from '../../theme/create-palette';
 
-function ScanMap({ scans, scansCount }) {
+function ScanMap({
+	box,
+	scans,
+	scansCount
+}) {
 	const [scansLoaded, setScansLoaded] = useState(false);
 	const palette = createPalette();
 	const { t } = useTranslation();
@@ -31,6 +35,22 @@ function ScanMap({ scans, scansCount }) {
 					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 				/>
 				<LayerGroup>
+					<CircleMarker
+						center={[
+							box?.schoolLatitude,
+							box?.schoolLongitude
+						]}
+						fill
+						fillColor={palette.success.main}
+						color={palette.success.main}
+						fillOpacity={.7}
+						zIndexOffset={20}
+						radius={10}
+					>
+						<Popup>
+							{t('recipient')}
+						</Popup>
+					</CircleMarker>
 					{
 						scans.map((scan, index) => {
 							return (
