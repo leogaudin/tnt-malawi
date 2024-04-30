@@ -72,12 +72,13 @@ export default function BoxSummary({ id, open, setOpen }) {
 							</Grid>
 							: null}
 					</Grid>
-					{scanData?.length && !isMobile &&
-						<Map
+					{scanData?.length && !isMobile
+					? <Map
 							box={boxData}
 							scans={scanData}
 							scansCount={scanData.length}
 						/>
+					: null
 					}
 				</Stack>
 				<ConfirmDialog
