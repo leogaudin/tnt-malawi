@@ -24,6 +24,7 @@ export default function BoxFiltering({boxes, setFilteredBoxes}) {
 		'scans',
 		'schoolLatitude',
 		'schoolLongitude',
+		'progress',
 	  ];
 
 	useEffect(() => {
