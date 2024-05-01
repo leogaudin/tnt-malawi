@@ -48,7 +48,7 @@ const PDFExport = ({ objects, folderName = 'Documents', itemName = 'Item' }) => 
       fontWeight: 900,
     },
     infoRow: {
-      fontSize: '2mm',
+      fontSize: '4mm',
       flexDirection: 'row',
       width: '100%',
       alignItems: 'center',
@@ -116,7 +116,6 @@ const PDFExport = ({ objects, folderName = 'Documents', itemName = 'Item' }) => 
       return (
         <Page orientation='portrait' key={id} size={['100mm', '150mm']} style={styles.page}>
           <View style={styles.documentContainer}>
-            <Text style={styles.infoHeading}>{t('informations')}</Text>
             <InfoRows object={object} />
             {qrComponent}
           </View>
