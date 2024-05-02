@@ -52,7 +52,7 @@ export async function getBox(id) {
 }
 
 export async function deleteBoxes(boxes) {
-  const batchSize = 250;
+  const batchSize = 2500;
   const idsToDelete = boxes.map(box => box.id);
   const deleteConditions = { id: { $in: [] } };
   const requestBody = { deleteConditions };
