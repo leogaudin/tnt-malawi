@@ -128,11 +128,6 @@ export default function Upload({ open, setOpen }) {
                       {t('csvExplanation')}
                     </Typography>
                   </Alert>
-                  <Alert severity='warning' style={{textAlign: 'center', alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent'}}>
-                    <Typography variant='body1'>
-                      <b>{t('longUpload')}</b>
-                    </Typography>
-                  </Alert>
                 </div>
               </div>
             )}
