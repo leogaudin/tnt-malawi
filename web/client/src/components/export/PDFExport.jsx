@@ -69,10 +69,16 @@ const PDFExport = ({ objects, folderName = 'Documents', itemName = 'Item' }) => 
       marginTop: '2mm',
     },
     qrCode: {
-      margin: 'auto',
+      margin: '2mm',
       width:'70mm',
       height: '70mm',
     },
+    serial: {
+      position: 'absolute',
+      bottom: '3mm',
+      right: '3mm',
+      fontSize: '2mm',
+    }
   });
 
   const QRCodePNG = async ({ id }) => {
@@ -108,8 +114,10 @@ const PDFExport = ({ objects, folderName = 'Documents', itemName = 'Item' }) => 
   };
 
   const renderPages = async () => {
-    return await Promise.all(objects.map(async (object, index) => {
-      const { createdAt, id } = object;
+    const sortedObjects = objects.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    const length = sortedObjects.length;
+    return await Promise.all(sortedObjects.map(async (object, index) => {
+      const { id } = object;
 
       const qrComponent = await QRCodePNG({ id });
 
@@ -118,6 +126,7 @@ const PDFExport = ({ objects, folderName = 'Documents', itemName = 'Item' }) => 
           <View style={styles.documentContainer}>
             <InfoRows object={object} />
             {qrComponent}
+            <Text style={styles.serial}>{index + 1}/{length}</Text>
           </View>
         </Page>
       );
