@@ -23,7 +23,7 @@ function haversineDistance(coord1, coord2) {
 	return distance;
 }
 
-export default function EndOfDelivery({boxes}) {
+export default function CurrentDelivery({boxes}) {
 	const [toExport, setToExport] = useState([]);
 	const { t } = useTranslation();
 
@@ -72,6 +72,6 @@ export default function EndOfDelivery({boxes}) {
 	}, [boxes]);
 
 	return (
-		<DownloadMenu data={toExport} title={t('endOfDeliveryReport')} detail={t('endOfDeliveryReportDetail')}/>
+		<DownloadMenu data={toExport} title={t('currentDeliveryReport')} detail={t('currentDeliveryReportDetail')}/>
 	);
 }

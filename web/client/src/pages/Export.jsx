@@ -3,7 +3,7 @@ import { Alert, Card, Stack, Typography, CardContent, Box } from '@mui/material'
 import AppContext from '../context/AppContext';
 import { useTranslation } from 'react-i18next';
 import BoxFiltering from '../components/controls/BoxFiltering';
-import EndOfDelivery from '../components/export/EndOfDelivery';
+import CurrentDelivery from '../components/export/CurrentDelivery';
 import PDFExport from '../components/export/PDFExport';
 
 export default function Export() {
@@ -36,7 +36,7 @@ export default function Export() {
                 <Typography variant='overline'><b>{t('itemsWillBeExported', {count: filteredBoxes.length})}</b></Typography>
                 <Stack direction={'row'} spacing={1} alignItems={'center'}>
                   <PDFExport objects={filteredBoxes} folderName={getFolderName()} />
-                  <EndOfDelivery boxes={filteredBoxes} />
+                  <CurrentDelivery boxes={filteredBoxes} />
                 </Stack>
               </Stack>
           </CardContent>
