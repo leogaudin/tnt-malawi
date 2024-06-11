@@ -93,13 +93,13 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.gaudin.tntmalawi"
+    namespace "com.gaudin.tntmottmacmalawi"
     defaultConfig {
-        applicationId "com.gaudin.tntmalawi"
+        applicationId "com.gaudin.tntmottmacmalawi"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 10000
-        versionName "1.0.0"
+        versionCode 10001
+        versionName "1.0.1"
         missingDimensionStrategy 'react-native-camera', 'general'
     }
 

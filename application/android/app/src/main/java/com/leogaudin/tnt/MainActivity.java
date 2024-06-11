@@ -1,4 +1,4 @@
-package com.gaudin.tntmalawi;
+package com.gaudin.tntmottmacmalawi;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
