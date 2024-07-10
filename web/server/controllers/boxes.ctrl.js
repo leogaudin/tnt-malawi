@@ -10,7 +10,7 @@ const deleteBox = deleteOne(Box);
 const deleteBoxes = deleteMany(Box);
 const getBoxesByAdminId = async (req, res) => {
     try {
-        const admin = await Admin.findOne({id: req.params.adminId});
+        const admin = await Admin.findOne({ id: req.params.adminId });
         if (!admin)
             return res.status(404).json({ success: false, error: `Admin not found` });
         if (!admin.publicInsights) {
@@ -33,6 +33,29 @@ const getBoxesByAdminId = async (req, res) => {
         return res.status(400).json({ success: false, error: error });
     }
 }
+const updateCoordinates = async (req, res) => {
+    try {
+        const { boxes } = req.body;
+        const apiKey = req.headers['x-authorization'];
+        if (!apiKey)
+            return res.status(401).json({ success: false, error: 'API key required' });
+        const admin = await Admin.findOne({ apiKey });
+        let updatedCount = 0;
+        await Promise.all(boxes.map(async (box) => {
+            const result = await Box.updateMany(
+                { school: box.school, adminId: admin.id },
+                { $set: { schoolLatitude: box.schoolLatitude, schoolLongitude: box.schoolLongitude }},
+                { "multi": true }
+            );
+            updatedCount += result.modifiedCount;
+            return ;
+        }));
+        return res.status(200).json({ success: true, updatedCount });
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({ success: false, error: error });
+    }
+}
 
 module.exports = {
     createBox,
@@ -42,4 +65,5 @@ module.exports = {
     getBoxes,
     getBoxById,
     getBoxesByAdminId,
+    updateCoordinates,
 }

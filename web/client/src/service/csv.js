@@ -110,3 +110,24 @@ export async function handleCSV(files, setUploadProgress, setResults, setIsLoadi
 		console.log(error);
 	}
 }
+
+export const csvToArray = async (csv, headers) => {
+	// For example, headers = ['school', 'schoolLatitude', 'schoolLongitude']
+	// csv = "school,schoolLatitude,schoolLongitude\nCHANKHOMI,-13.9833,33.7833\n"
+	// Returns [{ school: 'CHANKHOMI', schoolLatitude: '-13.9833', schoolLongitude
+	const result = [];
+	const text = await csv.text();
+	Papa.parse(text, {
+		skipEmptyLines: true,
+		header: false,
+		step: (element) => {
+			const obj = {};
+			headers.forEach((header, i) => {
+				obj[header] = element.data[i];
+			});
+			result.push(obj);
+		},
+	});
+	result.shift();
+	return result;
+}

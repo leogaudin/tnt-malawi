@@ -100,6 +100,10 @@ export async function getInsights(id) {
   return await sendRequest('get', `insights/${id}`);
 }
 
+export async function updateCoordinates(boxes) {
+  return await sendRequest('post', 'boxes/coords', { boxes });
+}
+
 export function groupByProperty(boxes, propertyName) {
   return boxes.reduce((acc, box) => {
     const property = box[propertyName];

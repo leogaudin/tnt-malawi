@@ -169,6 +169,7 @@ i18n
 					htPhone: 'HT Phone',
 					ssoName: 'SSO Name',
 					ssoPhone: 'SSO Phone',
+					advanced: 'Advanced',
 				}
 			},
 			fr: {
@@ -325,6 +326,7 @@ i18n
 					htPhone: 'Téléphone du HT',
 					ssoName: 'Nom du SSO',
 					ssoPhone: 'Téléphone du SSO',
+					advanced: 'Avancé',
 				},
 			},
 		},

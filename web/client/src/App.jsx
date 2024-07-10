@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import WaitForContext from './components/controls/WaitForContext';
+import Advanced from './pages/Advanced';
 
 export const theme = createTheme();
 
@@ -80,6 +81,14 @@ function App() {
                   <RequireAuth>
                     <WaitForContext>
                       <Delete />
+                    </WaitForContext>
+                  </RequireAuth>
+                  }
+                />
+                <Route path='/advanced' element={
+                  <RequireAuth>
+                    <WaitForContext>
+                      <Advanced />
                     </WaitForContext>
                   </RequireAuth>
                   }
