@@ -35,7 +35,8 @@ export default function Advanced() {
 		const splitResult = splitArrays(result, 250);
 		const responses = await Promise.all(splitResult.map((batch) => updateCoordinates(batch)));
 		const updatedCount = responses.reduce((acc, res) => acc + res.updatedCount, 0);
-		toast.success(`${updatedCount} boxes updated`);
+		const matchedCount = responses.reduce((acc, res) => acc + res.matchedCount, 0);
+		toast.success(`${matchedCount} boxes matched, ${updatedCount} updated.`);
 		setLoading(false);
 	}
 	return (

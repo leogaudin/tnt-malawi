@@ -27,7 +27,7 @@ function haversineDistance(coord1, coord2) {
 function isFinalDestination(schoolCoords, boxCoords) {
 	const distance = haversineDistance(schoolCoords, boxCoords);
     const toleranceInMeters = 1000;
-	const threshold = toleranceInMeters + boxCoords.accuracy;
+	const threshold = toleranceInMeters + boxCoords.accuracy || 0;
 
 	return distance <= threshold;
 }
@@ -104,6 +104,7 @@ const createScan = async (req, res) => {
 
 module.exports = {
     createScan,
+    isFinalDestination,
     // createScans,
     // deleteScan,
     // getScans,
