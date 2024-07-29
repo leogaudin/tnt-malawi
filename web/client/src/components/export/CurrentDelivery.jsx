@@ -1,4 +1,4 @@
-import { getLastFinalScan, getLastMarkedAsReceivedScan } from "../../service";
+import { getLastFinalScan, getLastInProgressScan, getLastMarkedAsReceivedScan } from "../../service";
 import DownloadMenu from "./DownloadMenu";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -31,6 +31,7 @@ export default function CurrentDelivery({boxes}) {
 		const toExport = boxes.map(box => {
 			const lastDeliveredScan = getLastFinalScan(box);
 			const lastMarkedAsReceivedScan = getLastMarkedAsReceivedScan(box);
+			const lastInProgressScan = getLastInProgressScan(box);
 
 			// Calculate the distance between the school and the last delivered scan in meters
 			const schoolCoords = {
@@ -51,8 +52,15 @@ export default function CurrentDelivery({boxes}) {
 				accuracy: lastMarkedAsReceivedScan?.location?.coords.accuracy
 			} : null;
 
+			const inProgressCoords = lastInProgressScan ? {
+				latitude: lastInProgressScan?.location?.coords.latitude,
+				longitude: lastInProgressScan?.location?.coords.longitude,
+				accuracy: lastInProgressScan?.location?.coords.accuracy
+			} : null;
+
 			const deliveredDistanceInMeters = deliveredCoords ? Math.round(haversineDistance(schoolCoords, deliveredCoords)) : '';
 			const receivedDistanceInMeters = receivedCoords ? Math.round(haversineDistance(schoolCoords, receivedCoords)) : '';
+			const inProgressDistanceInMeters = inProgressCoords ? Math.round(haversineDistance(schoolCoords, inProgressCoords)) : '';
 
 			return {
 				id: box.id,
@@ -65,6 +73,9 @@ export default function CurrentDelivery({boxes}) {
 				received: !!lastMarkedAsReceivedScan,
 				receivedDistanceInMeters,
 				receivedDate: lastMarkedAsReceivedScan ? new Date(lastMarkedAsReceivedScan?.location.timestamp).toLocaleDateString() : '',
+				inProgress: !!lastInProgressScan,
+				inProgressDistanceInMeters,
+				inProgressDate: lastInProgressScan ? new Date(lastInProgressScan?.location.timestamp).toLocaleDateString() : '',
 				validated: !!lastMarkedAsReceivedScan && !!lastDeliveredScan,
 			}
 		});
