@@ -14,6 +14,11 @@ import { toast } from 'react-toastify';
 
 export default function Advanced() {
 	const [loading, setLoading] = useState(false);
+	const [complete, setComplete] = useState(false);
+	const [uploaded, setUploaded] = useState(0);
+	const [total, setTotal] = useState(0);
+	const [matched, setMatched] = useState(0);
+	const [updated, setUpdated] = useState(0);
 
 	const splitArrays = (arr, size) => {
 		const result = [];
@@ -28,15 +33,26 @@ export default function Advanced() {
 		if (!file) return;
 		setLoading(true);
 		const result = await csvToArray(file, ['school', 'schoolLatitude', 'schoolLongitude']);
+		setTotal(result.length);
 		result.forEach((row) => {
 			row.schoolLatitude = parseFloat(row.schoolLatitude);
 			row.schoolLongitude = parseFloat(row.schoolLongitude);
 		});
-		const splitResult = splitArrays(result, 250);
-		const responses = await Promise.all(splitResult.map((batch) => updateCoordinates(batch)));
-		const updatedCount = responses.reduce((acc, res) => acc + res.updatedCount, 0);
-		const matchedCount = responses.reduce((acc, res) => acc + res.matchedCount, 0);
-		toast.success(`${matchedCount} boxes matched, ${updatedCount} updated.`);
+		const splitResult = splitArrays(result, 50);
+		const responses = [];
+		for (const batch of splitResult) {
+			try {
+				const response = await updateCoordinates(batch);
+				setUploaded(current => current + batch.length);
+				setMatched(current => current + response.matchedCount);
+				setUpdated(current => current + response.updatedCount);
+				responses.push(response);
+			} catch (error) {
+				console.error(error);
+				toast.error('An error occurred. Please check the console for more information.');
+			}
+		}
+		setComplete(true);
 		setLoading(false);
 	}
 	return (
@@ -48,14 +64,41 @@ export default function Advanced() {
 						<Alert severity='warning'>
 							<Typography variant='overline'>
 								Upload a .csv sheet with only three columns: school name, new latitude, and new longitude.
-								<br/>
+								<br />
 								Please make sure your data is clean and that the school name is spelled exactly as it was uploaded.
-								<br/>
+								<br />
 								Example: if a row's first column is "CHANKHOMI" but this school is spelled "CHANKHOMI " in the database, the row will be ignored.
 							</Typography>
 						</Alert>
 						<input id='coords-input' type='file' accept='.csv' />
-						<Button variant='contained' onClick={handleSubmit}>{loading ? 'Loading...' : 'Update'}</Button>
+						{loading
+							? (
+								<Stack spacing={2} direction='row' width='100%' justifyContent='space-between'>
+									<Stack alignItems='start'>
+										<Typography variant='h1'>
+											{uploaded}<span style={{ fontSize: 'initial' }}>/{total}</span>
+										</Typography>
+										<Typography variant='overline'>coordinates uploaded</Typography>
+									</Stack>
+									<Stack alignItems='start'>
+										<Typography variant='h1'>{matched}</Typography>
+										<Typography variant='overline'>boxes matched</Typography>
+									</Stack>
+									<Stack alignItems='start'>
+										<Typography variant='h1'>{updated}</Typography>
+										<Typography variant='overline'>boxes updated</Typography>
+									</Stack>
+								</Stack>
+							)
+							: <Button variant='contained' onClick={handleSubmit}>Update</Button>
+						}
+						{complete && (
+							<Alert severity='success'>
+								Update complete!
+								<br />
+								{matched} boxes matched, {updated} updated.
+							</Alert>
+						)}
 					</Stack>
 				</CardContent>
 			</Card>
