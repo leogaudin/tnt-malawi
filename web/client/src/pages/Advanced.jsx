@@ -32,7 +32,7 @@ export default function Advanced() {
 		const file = document.getElementById('coords-input').files[0];
 		if (!file) return;
 		setLoading(true);
-		const result = await csvToArray(file, ['school', 'schoolLatitude', 'schoolLongitude']);
+		const result = await csvToArray(file, ['school', 'district', 'schoolLatitude', 'schoolLongitude']);
 		setTotal(result.length);
 		result.forEach((row) => {
 			row.schoolLatitude = parseFloat(row.schoolLatitude);
@@ -63,9 +63,9 @@ export default function Advanced() {
 					<Stack spacing={2} padding={2}>
 						<Alert severity='warning'>
 							<Typography variant='overline'>
-								Upload a .csv sheet with only three columns: school name, new latitude, and new longitude.
+								Upload a .csv sheet with only 4 columns: school name, district name, new latitude, and new longitude.
 								<br />
-								Please make sure your data is clean and that the school name is spelled exactly as it was uploaded.
+								Please make sure your data is clean and that the school and district names are spelled identically as when it was uploaded.
 								<br />
 								Example: if a row's first column is "CHANKHOMI" but this school is spelled "CHANKHOMI " in the database, the row will be ignored.
 							</Typography>

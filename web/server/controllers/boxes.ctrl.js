@@ -34,6 +34,7 @@ const getBoxesByAdminId = async (req, res) => {
         return res.status(400).json({ success: false, error: error });
     }
 }
+
 const updateCoordinates = async (req, res) => {
     try {
         const { boxes } = req.body;
@@ -45,7 +46,7 @@ const updateCoordinates = async (req, res) => {
         let matchedCount = 0;
         await Promise.all(boxes.map(async (box) => {
             const result = await Box.updateMany(
-                { school: box.school, adminId: admin.id },
+                { school: box.school, district: box.district, adminId: admin.id },
                 { $set: { schoolLatitude: box.schoolLatitude, schoolLongitude: box.schoolLongitude }},
                 { "multi": true }
             );
