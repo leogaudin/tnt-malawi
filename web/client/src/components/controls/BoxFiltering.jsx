@@ -2,22 +2,27 @@ import { useState, useEffect } from 'react';
 import { SeverityPill } from '../customisation/SeverityPill';
 import { getProgress } from '../../service/statistics';
 import { colorsMap, getTextsMap } from '../../constants';
-import { Stack, Typography, RadioGroup, FormControlLabel, Radio, Select, MenuItem } from '@mui/material';
+import { Stack, Typography, Select, MenuItem, Button, SvgIcon } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { Add, Delete } from '@mui/icons-material';
 
-export default function BoxFiltering({boxes, setFilteredBoxes}) {
-	const {t} = useTranslation();
+export default function BoxFiltering({
+	boxes,
+	setFilteredBoxes
+}) {
+	const { t } = useTranslation();
 	const textsMap = getTextsMap();
-	const [selectedField, setSelectedField] = useState('');
-	const [selectedOption, setSelectedOption] = useState('all');
+	const [filters, setFilters] = useState([]);
 	const [progressFilter, setProgressFilter] = useState('any');
-	const excludedOptions = [
+	const excludedFields = [
 		'_id',
 		'id',
 		'school',
+		'schoolCode',
 		'htName',
 		'htPhone',
-		'institutionType',
+		'ssoName',
+		'ssoPhone',
 		'adminId',
 		'createdAt',
 		'__v',
@@ -25,17 +30,17 @@ export default function BoxFiltering({boxes, setFilteredBoxes}) {
 		'schoolLatitude',
 		'schoolLongitude',
 		'progress',
-	  ];
+	];
 
 	useEffect(() => {
-		setFilteredBoxes(boxes ? boxes : []);
+		setFilteredBoxes(boxes || []);
 	}, [boxes, setFilteredBoxes]);
 
 	useEffect(() => {
 		const updateFilteredBoxes = () => {
 			setFilteredBoxes(boxes?.filter((box) => {
 				return (
-					(box[selectedOption] === selectedField || selectedOption === 'all')
+					(filters.length === 0 || filters.every((filter) => box[filter.field] === filter.value))
 					&&
 					(getProgress(box) === progressFilter || progressFilter === 'any')
 				)
@@ -43,70 +48,107 @@ export default function BoxFiltering({boxes, setFilteredBoxes}) {
 		}
 
 		updateFilteredBoxes();
-	}, [boxes, progressFilter, selectedField, selectedOption, setFilteredBoxes]);
+	}, [boxes, filters, progressFilter, setFilteredBoxes]);
 
-	const availableOptions = boxes ? Object.keys(boxes[0] || {}).filter((field) => !excludedOptions?.includes(field)) : null;
-
-	const handleOptionChange = (event) => {
-		setSelectedOption(event.target.value);
-	};
-
-	const handleFieldChange = (event) => {
-		setSelectedField(event.target.value);
-	};
+	const availableOptions = boxes?.length
+		? Object.keys(boxes[0]).filter((field) => !excludedFields.includes(field))
+		: null;
 
 	const handleProgressChange = (event) => {
 		setProgressFilter(event.target.value);
 	}
 
+	const addFilter = () => {
+		setFilters([...filters, { field: '', value: '' }]);
+	}
+
+	const removeFilter = (index) => {
+		setFilters(filters.filter((_, i) => i !== index));
+	}
+
+	const handleFieldChange = (index, event) => {
+		const newFilters = [...filters];
+		newFilters[index].field = event.target.value;
+		setFilters(newFilters);
+	}
+
+	const handleValueChange = (index, event) => {
+		const newFilters = [...filters];
+		newFilters[index].value = event.target.value;
+		setFilters(newFilters);
+	}
+
 	return (
-		<Stack direction={'column'} alignItems={'center'} justifyContent={'space-between'} width={'100%'} style={{marginBottom: 5, marginTop: 5}}>
-			<Stack direction={'column'}>
-				<Typography textAlign={'center'} variant="overline">{t('filterOptions')}</Typography>
-				<Stack direction={'row'} spacing={1} alignItems={'flex-start'}>
-					<RadioGroup
-						name="export-options"
-						value={selectedOption}
-						onChange={handleOptionChange}
-						row
-						style={{
-							justifyContent: 'center',
-						}}
-					>
-						<FormControlLabel value="all" control={<Radio />} label={t('all')} />
-						{availableOptions?.map((field) => (
-						<FormControlLabel key={field} value={field} control={<Radio />} label={`${t('by', {item: field})}`} />
-						))}
-					</RadioGroup>
-				</Stack>
-			</Stack>
-			<Stack direction={'row'} spacing={3}>
-			{selectedOption !== 'all' && (
-			<Stack direction={'column'}>
-				<Typography textAlign={'center'} variant="overline">{t('select', {option: selectedOption})}</Typography>
-				<Select
-					onChange={handleFieldChange}
-					placeholder={`${t('select', {option: selectedOption})}`}
-					displayEmpty
-					renderValue={(value) => value ? value : `${t('select', {option: selectedOption})}`}
-				>
-				{Array.from(new Set(boxes.map((box) => box[selectedOption]))).map((value) => (
-					<MenuItem key={value} value={value}>
-						{value}
-					</MenuItem>
+		<Stack
+			direction={{ xs: 'column', sm: 'row' }}
+			alignItems={{ xs: 'center', sm: 'flex-start' }}
+			justifyContent='center'
+			width='100%'
+			style={{ marginBottom: 5, marginTop: 10 }}
+			spacing={5}
+		>
+			<Stack direction='column' spacing={2}>
+				<Typography textAlign='center' variant='overline'>{t('filterOptions')}</Typography>
+				{filters.map((filter, index) => (
+					<Stack direction='row' spacing={1} alignItems='flex-start' key={index}>
+						<Select
+							fullWidth
+							onChange={(event) => handleFieldChange(index, event)}
+							placeholder={`${t('select', { option: t('field') })}`}
+							displayEmpty
+							renderValue={(_) => filter.field || `${t('select', { option: t('field') })}`}
+						>
+							{availableOptions.map((field) => {
+								if (filters.some((filter) => filter.field === field)) return null;
+								return (
+									<MenuItem key={field} value={field}>
+										{field}
+									</MenuItem>
+								)
+							})}
+						</Select>
+						<Select
+							fullWidth
+							onChange={(event) => handleValueChange(index, event)}
+							placeholder={`${t('select', { option: t('value') })}`}
+							displayEmpty
+							renderValue={(_) => filter.value || `${t('select', { option: t('value') })}`}
+						>
+							{Array.from(new Set(boxes.map((box) => box[filter.field]))).map((value) => (
+								<MenuItem key={value} value={value}>
+									{value}
+								</MenuItem>
+							))}
+						</Select>
+						<Button
+							onClick={() => removeFilter(index)}
+							size='small'
+							style={{ alignSelf: 'stretch' }}
+						>
+							<SvgIcon><Delete /></SvgIcon>
+						</Button>
+					</Stack>
 				))}
-				</Select>
+				{availableOptions?.length > filters.length &&
+					<Button
+						onClick={addFilter}
+						variant='outlined'
+						size='medium'
+					>
+						<SvgIcon><Add /></SvgIcon>
+					</Button>
+				}
 			</Stack>
-			)}
-			<Stack direction={'column'}>
-				<Typography textAlign={'center'} variant="overline">{t('select', {option: t('progress')})}</Typography>
+
+			<Stack direction='column' spacing={2}>
+				<Typography textAlign='center' variant='overline'>{t('select', { option: t('progress') })}</Typography>
 				<Select
 					onChange={handleProgressChange}
-					placeholder={t('select', {option: t('progress')})}
-					defaultValue={'any'}
+					placeholder={t('select', { option: t('progress') })}
+					defaultValue='any'
 				>
-					<MenuItem value="any">
-						<SeverityPill color={colorsMap["noscans"]}>
+					<MenuItem value='any'>
+						<SeverityPill color={colorsMap['noscans']}>
 							{t('any')}
 						</SeverityPill>
 					</MenuItem>
@@ -118,7 +160,6 @@ export default function BoxFiltering({boxes, setFilteredBoxes}) {
 						</MenuItem>
 					))}
 				</Select>
-			</Stack>
 			</Stack>
 		</Stack>
 	);
