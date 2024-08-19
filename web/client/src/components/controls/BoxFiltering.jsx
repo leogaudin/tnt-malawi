@@ -72,6 +72,14 @@ export default function BoxFiltering({
 		setFilters(newFilters);
 	}
 
+	const isPossible = (filters, field, value) => {
+		const newFilters = [...filters];
+		const existingFilter = newFilters.findIndex((filter) => filter.field === field); // Check if the field is already selected
+		const index = existingFilter === -1 ? newFilters.length : existingFilter; // If it is, replace it, otherwise add a new filter
+		newFilters[index] = { field, value };
+		return boxes.some((box) => newFilters.every((filter) => box[filter.field] === filter.value));
+	}
+
 	const handleValueChange = (index, event) => {
 		const newFilters = [...filters];
 		newFilters[index].value = event.target.value;
@@ -114,11 +122,14 @@ export default function BoxFiltering({
 							displayEmpty
 							renderValue={(_) => filter.value || `${t('select', { option: t('value') })}`}
 						>
-							{Array.from(new Set(boxes.map((box) => box[filter.field]))).map((value) => (
-								<MenuItem key={value} value={value}>
-									{value}
-								</MenuItem>
-							))}
+							{Array.from(new Set(boxes.map((box) => box[filter.field]))).map((option) => {
+								if (isPossible(filters, filter.field, option))
+									return (
+										<MenuItem key={option} value={option}>
+											{option}
+										</MenuItem>
+									)
+							})}
 						</Select>
 						<Button
 							onClick={() => removeFilter(index)}
