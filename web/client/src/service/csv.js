@@ -23,7 +23,7 @@ function parseCSV(text, setUploadProgress, setResults, setIsLoading, setComplete
 				school,
 				htName,
 				htPhone,
-				institutionType,
+				schoolCode,
 				latitude,
 				longitude,
 			] = element.data;
@@ -36,7 +36,7 @@ function parseCSV(text, setUploadProgress, setResults, setIsLoading, setComplete
 				school,
 				htName,
 				htPhone,
-				institutionType,
+				schoolCode,
 				schoolLatitude: parseFloat(latitude),
 				schoolLongitude: parseFloat(longitude),
 				adminId: user.id,

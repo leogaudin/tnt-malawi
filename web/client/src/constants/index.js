@@ -9,7 +9,7 @@ export const boxFields = [
 	'school',
 	'htName',
 	'htPhone',
-	'institutionType',
+	'schoolCode',
 ];
 
 export function getItems() {
