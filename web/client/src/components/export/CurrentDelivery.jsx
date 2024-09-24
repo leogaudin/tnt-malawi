@@ -32,6 +32,7 @@ export default function CurrentDelivery({boxes}) {
 			const lastDeliveredScan = getLastFinalScan(box);
 			const lastMarkedAsReceivedScan = getLastMarkedAsReceivedScan(box);
 			const lastInProgressScan = getLastInProgressScan(box);
+			const lastScan = box.scans ? box.scans[box.scans.length - 1] : null;
 
 			// Calculate the distance between the school and the last delivered scan in meters
 			const schoolCoords = {
@@ -67,8 +68,10 @@ export default function CurrentDelivery({boxes}) {
 				district: box.district,
 				zone: box.zone,
 				school: box.school,
-				// schoolLatitude: box.schoolLatitude,
-				// schoolLongitude: box.schoolLongitude,
+				schoolLatitude: box.schoolLatitude,
+				schoolLongitude: box.schoolLongitude,
+				lastScanLatitude: lastScan?.location?.coords.latitude || '',
+				lastScanLongitude: lastScan?.location?.coords.longitude || '',
 				delivered: !!lastDeliveredScan,
 				deliveredDistanceInMeters,
 				deliveredDate: lastDeliveredScan ? new Date(lastDeliveredScan?.location.timestamp).toLocaleDateString() : '',
