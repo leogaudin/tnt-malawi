@@ -169,8 +169,7 @@ export default function BoxFiltering({
 						width='fit-content'
 						defaultValue='any'
 						onChange={handleProgressChange}
-						focusBorderColor={palette.primary.dark}
-						borderColor={palette.primary.light}
+						focusBorderColor='gray'
 					>
 						<option value='any'>{t('any')}</option>
 						{progresses.map((progress) => (
