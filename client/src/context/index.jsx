@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react';
-import { callAPI, fetchAllBoxes, fetchInsights, user } from '../service';
+import { callAPI, fetchAllBoxes, user } from '../service';
 import { computeInsights } from '../service/stats';
 
 const AppContext = createContext({

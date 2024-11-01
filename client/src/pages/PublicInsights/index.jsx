@@ -9,26 +9,14 @@ import { computeInsights } from '../../service/stats';
 export default function PublicInsights() {
 	const { id } = useParams();
 	const [insights, setInsights] = useState(null);
-	const [unauthorized, setUnauthorized] = useState(false);
 
 	useEffect(() => {
 		fetchAllBoxes(id, () => {})
 			.then((boxes) => {
-				if (!boxes?.length)
-					throw Error('Unauthorized')
 				computeInsights(boxes, setInsights)
 			})
-			.catch(setUnauthorized(true))
+			.catch((e) => console.error(e))
 	}, [id])
-
-	if (unauthorized)
-		return (
-			<Heading>
-				<code>
-					Unauthorized
-				</code>
-			</Heading>
-		);
 
 	return (
 		<>
