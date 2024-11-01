@@ -1,14 +1,14 @@
 // Here are all the country-specific configurations, to facilitate the process of adapting the application to a new country.
 
 // TnT + name of the country + flag
-export const name = 'TnT 🇺🇳';
+export const name = 'TnT Malawi 🇲🇼';
 
 export const colors = {
-	lightest: '#F0F5FF',
-	light: '#EBF0FE',
-	main: '#0949FF',
-	dark: '#0033C0',
-	darkest: '#001D6A',
+	lightest: '#FFE7E6',
+	light: '#F5898B',
+	main: '#CE1126',
+	dark: '#A8051E',
+	darkest: '#5C0014',
 };
 
 // The corresponding API URL
@@ -17,7 +17,7 @@ export const API_URL =
 						?
 						'http://localhost:3000/api'
 						:
-						'https://track-and-trace-api.vercel.app/api'
+						'https://tnt-malawi-api.vercel.app/api'
 
 
 // Fields that should be: displayed as information, or the full representation of the object
