@@ -485,7 +485,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tnt.scanner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tntmalawi.scanner;
 				PRODUCT_NAME = scanner;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -512,7 +512,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.tnt.scanner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tntmalawi.scanner;
 				PRODUCT_NAME = scanner;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
