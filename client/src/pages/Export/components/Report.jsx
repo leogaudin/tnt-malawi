@@ -18,77 +18,85 @@ import { haversineDistance } from '../../../service/utils';
 import { essentialFields } from '../../../service/specific';
 
 function downloadJson(data, filename) {
-	const blob = new Blob([ JSON.stringify(data) ], { type: 'application/json' });
+	const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
 	saveAs(blob, filename + '.json');
 }
 
 function downloadCSV(data, filename) {
 	const csv = json2csv(data, {});
-	const blob = new Blob([ csv ], { type: 'text/csv' });
+	const blob = new Blob([csv], { type: 'text/csv' });
 	saveAs(blob, filename + '.csv');
 }
 
 export default function Report({ boxes }) {
 	const { t } = useTranslation();
 
-	const toExport = boxes.map(box => {
-		const lastReachedScan = getLastFinalScan(box);
-		const lastMarkedAsReceivedScan = getLastMarkedAsReceivedScan(box);
-		const lastValidatedScan = getLastValidatedScan(box);
-		box.scans.sort((a, b) => new Date(b.time) - new Date(a.time));
-		const lastScan = box.scans[0] || null;
+	const handleDownload = (format) => {
+		const toExport = boxes.map(box => {
+			const lastReachedScan = getLastFinalScan(box);
+			const lastMarkedAsReceivedScan = getLastMarkedAsReceivedScan(box);
+			const lastValidatedScan = getLastValidatedScan(box);
+			box.scans.sort((a, b) => new Date(b.time) - new Date(a.time));
+			const lastScan = box.scans[0] || null;
 
-		const schoolCoords = {
-			latitude: box.schoolLatitude,
-			longitude: box.schoolLongitude,
-			accuracy: 1
-		};
+			const schoolCoords = {
+				latitude: box.schoolLatitude,
+				longitude: box.schoolLongitude,
+				accuracy: 1
+			};
 
-		// const reachedCoords = lastReachedScan ? {
-		// 	latitude: lastReachedScan?.location?.coords.latitude,
-		// 	longitude: lastReachedScan?.location?.coords.longitude,
-		// 	accuracy: lastReachedScan?.location?.coords.accuracy
-		// } : null;
+			// const reachedCoords = lastReachedScan ? {
+			// 	latitude: lastReachedScan?.location?.coords.latitude,
+			// 	longitude: lastReachedScan?.location?.coords.longitude,
+			// 	accuracy: lastReachedScan?.location?.coords.accuracy
+			// } : null;
 
-		const receivedCoords = lastMarkedAsReceivedScan ? {
-			latitude: lastMarkedAsReceivedScan?.location?.coords.latitude,
-			longitude: lastMarkedAsReceivedScan?.location?.coords.longitude,
-			accuracy: lastMarkedAsReceivedScan?.location?.coords.accuracy
-		} : null;
+			const receivedCoords = lastMarkedAsReceivedScan ? {
+				latitude: lastMarkedAsReceivedScan?.location?.coords.latitude,
+				longitude: lastMarkedAsReceivedScan?.location?.coords.longitude,
+				accuracy: lastMarkedAsReceivedScan?.location?.coords.accuracy
+			} : null;
 
-		// const reachedDistanceInMeters = reachedCoords ? Math.round(haversineDistance(schoolCoords, reachedCoords)) : '';
-		const receivedDistanceInMeters = receivedCoords ? Math.round(haversineDistance(schoolCoords, receivedCoords)) : '';
-		const lastScanDistanceInMeters = lastScan ? Math.round(haversineDistance(schoolCoords, lastScan.location.coords)) : '';
+			// const reachedDistanceInMeters = reachedCoords ? Math.round(haversineDistance(schoolCoords, reachedCoords)) : '';
+			const receivedDistanceInMeters = receivedCoords ? Math.round(haversineDistance(schoolCoords, receivedCoords)) : '';
+			const lastScanDistanceInMeters = lastScan ? Math.round(haversineDistance(schoolCoords, lastScan.location.coords)) : '';
 
-		const result = {
-			id: box.id,
-		};
+			const result = {
+				id: box.id,
+			};
 
-		essentialFields.forEach(field => {
-			if (box[field]) {
-				result[field] = box[field];
+			essentialFields.forEach(field => {
+				if (box[field]) {
+					result[field] = box[field];
+				}
+			});
+
+			return {
+				...result,
+				schoolLatitude: box.schoolLatitude,
+				schoolLongitude: box.schoolLongitude,
+				lastScanLatitude: lastScan?.location?.coords.latitude || '',
+				lastScanLongitude: lastScan?.location?.coords.longitude || '',
+				lastScanDistanceInMeters,
+				lastScanDate: lastScan ? new Date(lastScan?.location.timestamp).toLocaleDateString() : '',
+				reachedGps: !!lastReachedScan,
+				reachedDate: lastReachedScan ? new Date(lastReachedScan?.location.timestamp).toLocaleDateString() : '',
+				received: !!lastMarkedAsReceivedScan,
+				receivedDistanceInMeters,
+				receivedDate: lastMarkedAsReceivedScan ? new Date(lastMarkedAsReceivedScan?.location.timestamp).toLocaleDateString() : '',
+				validated: !!lastValidatedScan,
+				validatedDate: lastValidatedScan ? new Date(lastValidatedScan?.location.timestamp).toLocaleDateString() : '',
 			}
 		});
 
-		return {
-			...result,
-			schoolLatitude: box.schoolLatitude,
-			schoolLongitude: box.schoolLongitude,
-			lastScanLatitude: lastScan?.location?.coords.latitude || '',
-			lastScanLongitude: lastScan?.location?.coords.longitude || '',
-			lastScanDistanceInMeters,
-			lastScanDate: lastScan ? new Date(lastScan?.location.timestamp).toLocaleDateString() : '',
-			reachedGps: !!lastReachedScan,
-			reachedDate: lastReachedScan ? new Date(lastReachedScan?.location.timestamp).toLocaleDateString() : '',
-			received: !!lastMarkedAsReceivedScan,
-			receivedDistanceInMeters,
-			receivedDate: lastMarkedAsReceivedScan ? new Date(lastMarkedAsReceivedScan?.location.timestamp).toLocaleDateString() : '',
-			validated: !!lastValidatedScan,
-			validatedDate: lastValidatedScan ? new Date(lastValidatedScan?.location.timestamp).toLocaleDateString() : '',
-		}
-	});
+		const title = `${t('currentDeliveryReport')} - ${new Date().toISOString().slice(0, 10)}`;
 
-	const title = `${t('currentDeliveryReport')} - ${new Date().toISOString().slice(0, 10)}`;
+		if (format === 'csv') {
+			downloadCSV(toExport, title);
+		} else {
+			downloadJson(toExport, title);
+		}
+	}
 
 	return (
 		<Menu>
@@ -117,12 +125,12 @@ export default function Report({ boxes }) {
 			</MenuButton>
 			<MenuList>
 				<MenuItem
-					onClick={() => downloadCSV(toExport, title)}
+					onClick={() => handleDownload('csv')}
 				>
 					CSV
 				</MenuItem>
 				<MenuItem
-					onClick={() => downloadJson(toExport, title)}
+					onClick={() => handleDownload('json')}
 				>
 					JSON
 				</MenuItem>

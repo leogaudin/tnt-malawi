@@ -70,7 +70,7 @@ export async function uploadDistributionList(file, setOutput) {
 				];
 			});
 
-			const BUFFER_LENGTH = 25000;
+			const BUFFER_LENGTH = 15000;
 			const numBoxes = boxes.length;
 			let uploaded = 0;
 			let uploadedBytes = 0;
