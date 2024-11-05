@@ -13,7 +13,8 @@ import {
 	Select,
 } from '@chakra-ui/react';
 import { palette } from '../theme';
-import { HamburgerIcon, SmallCloseIcon } from '@chakra-ui/icons';
+import { RxHamburgerMenu } from "react-icons/rx";
+import { IoIosClose } from "react-icons/io";
 import { getRoutes, icons, navbarWidth, user } from '../service';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -127,7 +128,7 @@ export default function Navbar() {
 							variant='unstyled'
 							bg={palette.primary.dark}
 							color={palette.background}
-							icon={toggle ? <SmallCloseIcon /> : <HamburgerIcon />}
+							icon={toggle ? <IoIosClose /> : <RxHamburgerMenu />}
 						/>
 						<Box
 							display={toggle ? 'flex' : 'none'}

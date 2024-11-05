@@ -10,7 +10,7 @@ import {
 	Flex,
 	Image,
 } from '@chakra-ui/react';
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { palette } from '../../theme';
 import { callAPI, user } from '../../service';
 import { useNavigate } from 'react-router-dom';
@@ -127,7 +127,7 @@ export default function Login() {
 								<Button
 									variant='ghost'
 									onClick={() => setShowPassword((showPassword) => !showPassword)}>
-									{showPassword ? <ViewIcon /> : <ViewOffIcon />}
+									{showPassword ? <FaRegEye /> : <FaRegEyeSlash />}
 								</Button>
 							</InputRightElement>
 						</InputGroup>
