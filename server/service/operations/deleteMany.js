@@ -10,11 +10,7 @@ export const deleteMany = (Model) => async (req, res) => {
 				return handle400Error(res, 'No delete conditions provided');
 			}
 
-			const instances = await Model.deleteMany({ ...(deleteConditions || {}), adminId: admin.id });
-
-			if (instances.deletedCount === 0) {
-				return handle404Error(res);
-			}
+			const instances = await Model.deleteMany({ ...deleteConditions, adminId: admin.id });
 
 			return handle200Success(res, { deletedCount: instances.deletedCount });
 		});

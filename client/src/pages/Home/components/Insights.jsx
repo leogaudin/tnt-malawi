@@ -73,7 +73,8 @@ export default function Insights({ insights }) {
 							>
 								{t('currently')}
 							</Heading>
-							<HStack
+							<Stack
+								direction={{ base: 'column', md: 'row' }}
 								gap={5}
 							>
 								{Object.keys(repartition).map((key, i) => {
@@ -96,7 +97,7 @@ export default function Insights({ insights }) {
 										</Stack>
 									);
 								})}
-							</HStack>
+							</Stack>
 						</Stack>
 					</Card>
 				);
