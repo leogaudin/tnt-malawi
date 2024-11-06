@@ -1,17 +1,21 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
+const boxFields = {
+	project: { type: String, required: true },
+	division: { type: String, required: false },
+	district: { type: String, required: true },
+	zone: { type: String, required: false },
+	school: { type: String, required: true },
+	htName: { type: String, required: false },
+	htPhone: { type: String, required: false },
+	schoolCode: { type: String, required: false },
+};
+
 const Box = new Schema(
 	{
 		id: { type: String, required: true },
-		project: { type: String, required: true },
-		division: { type: String, required: false },
-		district: { type: String, required: false },
-		zone: { type: String, required: false },
-		school: { type: String, required: true },
-		htName: { type: String, required: false },
-		htPhone: { type: String, required: false },
-		schoolCode: { type: String, required: false },
+		...boxFields,
 		adminId: { type: String, required: true },
 		createdAt: { type: Date, required: true },
 		scans: { type: Array, required: false },

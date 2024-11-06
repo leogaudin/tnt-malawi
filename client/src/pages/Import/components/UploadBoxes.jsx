@@ -55,7 +55,7 @@ export default function UploadBoxes() {
 					opacity={0.5}
 				>
 					{t('columnOrder')}{': '}
-					<code>{boxFields.join(', ') + `, ${t('latitude')}, ${t('longitude')}`}</code>
+					<code>{Object.keys(boxFields).join(', ') + `, ${t('latitude')}, ${t('longitude')}`}</code>
 				</Text>
 			</DragDrop>
 		</>

@@ -104,7 +104,7 @@ const PDFExport = ({ objects, folderName = 'Documents' }) => {
 	};
 
 	const InfoRows = ({ object }) => {
-		return boxFields.map((field) => {
+		return Object.keys(boxFields).map((field) => {
 			if (object[field]) {
 				return (
 					<View style={styles.infoRow} key={field}>

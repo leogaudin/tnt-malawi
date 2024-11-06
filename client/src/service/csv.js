@@ -37,10 +37,10 @@ export async function uploadDistributionList(file, setOutput) {
 		step: (element) => {
 			try {
 				const newBox = {};
-				const fields = [...boxFields, 'schoolLatitude', 'schoolLongitude'];
+				const fields = [...Object.keys(boxFields), 'schoolLatitude', 'schoolLongitude'];
 
 				fields.forEach((field, index) => {
-					if (!element.data[index])
+					if (!element.data[index] && boxFields[field].required)
 						throw new Error(`Field ${field} is missing.`);
 					newBox[field] = element.data[index];
 				});

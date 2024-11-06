@@ -25,16 +25,16 @@ export const API_URL =
 // - PDFExport.jsx
 // - UploadBoxes.jsx
 // - csv.js
-export const boxFields = [
-	'project',
-	'division',
-	'district',
-	'zone',
-	'school',
-	'htName',
-	'htPhone',
-	'schoolCode',
-];
+export const boxFields = {
+	project: { type: String, required: true },
+	division: { type: String, required: false },
+	district: { type: String, required: true },
+	zone: { type: String, required: false },
+	school: { type: String, required: true },
+	htName: { type: String, required: false },
+	htPhone: { type: String, required: false },
+	schoolCode: { type: String, required: false },
+};
 
 // Minimal fields that are used to differentiate boxes (e.g. for updating coordinates)
 // Used in:
