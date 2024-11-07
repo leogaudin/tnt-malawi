@@ -36,7 +36,7 @@ export default function RouteWrapper({ route }) {
 					height='100%'
 					justify='center'
 					direction='column'
-					overflow='scroll'
+					overflow='hidden'
 					padding={5}
 				>
 					{route.worksWithoutBoxes
