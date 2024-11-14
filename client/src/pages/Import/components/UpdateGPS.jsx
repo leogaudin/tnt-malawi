@@ -55,7 +55,7 @@ export default function UpdateGPS() {
 					opacity={0.5}
 				>
 					{t('columnOrder')}{': '}
-					<code>{`${essentialFields.join(', ')}, ${t('latitude')}, ${t('longitude')}`}</code>
+					<code>{`${essentialFields.map(field => t(field)).join(', ')}, ${t('latitude')}, ${t('longitude')}`}</code>
 				</Text>
 			</DragDrop>
 		</>

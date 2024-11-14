@@ -166,8 +166,9 @@ const PDFExport = ({ objects, folderName = 'Documents' }) => {
 			onClick={downloadDocuments}
 			isLoading={loading}
 			loadingText={pagesComplete + ' generated'}
-			paddingY={10}
-		>
+			paddingY='1rem'
+			height='fit-content'
+	>
 			<HStack
 				width='100%'
 				gap={5}
@@ -179,6 +180,7 @@ const PDFExport = ({ objects, folderName = 'Documents' }) => {
 				<Stack
 					flexDirection='column'
 					alignItems='start'
+					textAlign='start'
 				>
 					<Text>{t('printableLabels')}</Text>
 					<Text fontWeight='light' whiteSpace='normal'>{t('printableLabelsDetail')}</Text>

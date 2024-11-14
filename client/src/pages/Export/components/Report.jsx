@@ -45,19 +45,12 @@ export default function Report({ boxes }) {
 				accuracy: 1
 			};
 
-			// const reachedCoords = lastReachedScan ? {
-			// 	latitude: lastReachedScan?.location?.coords.latitude,
-			// 	longitude: lastReachedScan?.location?.coords.longitude,
-			// 	accuracy: lastReachedScan?.location?.coords.accuracy
-			// } : null;
-
 			const receivedCoords = lastMarkedAsReceivedScan ? {
 				latitude: lastMarkedAsReceivedScan?.location?.coords.latitude,
 				longitude: lastMarkedAsReceivedScan?.location?.coords.longitude,
 				accuracy: lastMarkedAsReceivedScan?.location?.coords.accuracy
 			} : null;
 
-			// const reachedDistanceInMeters = reachedCoords ? Math.round(haversineDistance(schoolCoords, reachedCoords)) : '';
 			const receivedDistanceInMeters = receivedCoords ? Math.round(haversineDistance(schoolCoords, receivedCoords)) : '';
 			const lastScanDistanceInMeters = lastScan ? Math.round(haversineDistance(schoolCoords, lastScan.location.coords)) : '';
 
@@ -71,7 +64,7 @@ export default function Report({ boxes }) {
 				}
 			});
 
-			return {
+			const raw = {
 				...result,
 				schoolLatitude: box.schoolLatitude,
 				schoolLongitude: box.schoolLongitude,
@@ -79,14 +72,21 @@ export default function Report({ boxes }) {
 				lastScanLongitude: lastScan?.location?.coords.longitude || '',
 				lastScanDistanceInMeters,
 				lastScanDate: lastScan ? new Date(lastScan?.location.timestamp).toLocaleDateString() : '',
-				reachedGps: !!lastReachedScan,
+				reachedGps: !!lastReachedScan & 1,
 				reachedDate: lastReachedScan ? new Date(lastReachedScan?.location.timestamp).toLocaleDateString() : '',
-				received: !!lastMarkedAsReceivedScan,
+				received: !!lastMarkedAsReceivedScan & 1,
 				receivedDistanceInMeters,
 				receivedDate: lastMarkedAsReceivedScan ? new Date(lastMarkedAsReceivedScan?.location.timestamp).toLocaleDateString() : '',
-				validated: !!lastValidatedScan,
+				validated: !!lastValidatedScan & 1,
 				validatedDate: lastValidatedScan ? new Date(lastValidatedScan?.location.timestamp).toLocaleDateString() : '',
 			}
+
+			const translated = Object.keys(raw).reduce((acc, key) => {
+				acc[t(key)] = raw[key]
+				return acc;
+			}, {});
+
+			return translated;
 		});
 
 		const title = `${t('currentDeliveryReport')} - ${new Date().toISOString().slice(0, 10)}`;
@@ -104,7 +104,8 @@ export default function Report({ boxes }) {
 				as={Button}
 				variant='outline'
 				size='lg'
-				paddingY={10}
+				paddingY='1rem'
+				height='fit-content'
 			>
 				<HStack
 					width='100%'
@@ -117,6 +118,7 @@ export default function Report({ boxes }) {
 					<Stack
 						flexDirection='column'
 						alignItems='start'
+						textAlign='start'
 					>
 						<Text>{t('currentDeliveryReport')}</Text>
 						<Text fontWeight='light' whiteSpace='normal'>{t('currentDeliveryReportDetail')}</Text>

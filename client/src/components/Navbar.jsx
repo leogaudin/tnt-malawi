@@ -122,13 +122,11 @@ export default function Navbar() {
 						alignItems='center'
 					>
 						<IconButton
-							alt='menu'
-							objectFit='contain'
+							aria-label='menu'
+							icon={toggle ? <IoIosClose /> : <RxHamburgerMenu />}
 							onClick={() => setToggle(!toggle)}
-							variant='unstyled'
 							bg={palette.primary.dark}
 							color={palette.background}
-							icon={toggle ? <IoIosClose /> : <RxHamburgerMenu />}
 						/>
 						<Box
 							display={toggle ? 'flex' : 'none'}

@@ -156,13 +156,11 @@ export const progresses = [
 	{
 		key: 'total',
 		color: palette.text,
-		label: i18n.t('total'),
 		userAvailable: false,
 	},
 	{
 		key: 'noScans',
 		color: palette.error.main,
-		label: i18n.t('noScans'),
 		userAvailable: true,
 		icon: icons.close,
 		inTimeline: true,
@@ -170,7 +168,6 @@ export const progresses = [
 	{
 		key: 'inProgress',
 		color: palette.warning.main,
-		label: i18n.t('inProgress'),
 		userAvailable: true,
 		icon: icons.clock,
 		inTimeline: true,
@@ -178,7 +175,6 @@ export const progresses = [
 	{
 		key: 'received',
 		color: palette.blue.main,
-		label: i18n.t('received'),
 		userAvailable: true,
 		icon: icons.eye,
 		inTimeline: true,
@@ -186,7 +182,6 @@ export const progresses = [
 	{
 		key: 'reachedGps',
 		color: palette.cyan.main,
-		label: i18n.t('reachedGps'),
 		userAvailable: true,
 		icon: icons.pin,
 		inTimeline: true,
@@ -194,7 +189,6 @@ export const progresses = [
 	{
 		key: 'reachedAndReceived',
 		color: palette.teal.main,
-		label: i18n.t('reachedAndReceived'),
 		userAvailable: true,
 		icon: icons.almost,
 		inTimeline: true,
@@ -202,7 +196,6 @@ export const progresses = [
 	{
 		key: 'validated',
 		color: palette.success.main,
-		label: i18n.t('validated'),
 		userAvailable: true,
 		icon: icons.check,
 		inTimeline: true,

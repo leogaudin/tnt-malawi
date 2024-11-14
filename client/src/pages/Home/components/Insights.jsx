@@ -92,7 +92,7 @@ export default function Insights({ insights }) {
 												size='sm'
 												fontWeight='light'
 											>
-												{t(progress.label)}
+												{t(progress.key)}
 											</Heading>
 										</Stack>
 									);

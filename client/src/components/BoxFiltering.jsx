@@ -172,11 +172,15 @@ export default function BoxFiltering({
 						focusBorderColor='gray'
 					>
 						<option value='any'>{t('any')}</option>
-						{progresses.map((progress) => (
-							<option key={progress.key} value={progress.key}>
-								{t(progress.key)}
-							</option>
-						))}
+						{progresses.map((progress) => {
+							if (progress.key === 'total')
+								return null;
+							return (
+								<option key={progress.key} value={progress.key}>
+									{t(progress.key)}
+								</option>
+							)
+						})}
 					</Select>
 				</>)
 			}

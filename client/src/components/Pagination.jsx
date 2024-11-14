@@ -7,6 +7,7 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
+import { useEffect } from 'react';
 
 export default function Pagination({
 	length,
@@ -15,6 +16,7 @@ export default function Pagination({
 	pageSize,
 	setPageSize,
 }) {
+	console.log(length, currentPage, pageSize, setCurrentPage, setPageSize);
 	if (!length || pageSize >= length)
 		return null;
 	const totalPages = Math.ceil(length / pageSize);
@@ -24,6 +26,11 @@ export default function Pagination({
 	const { t } = useTranslation();
 
 	const pageSizes = [10, 20, 50, 100, 500];
+
+	useEffect(() => {
+		if (currentPage > Math.ceil(length / pageSize))
+			setCurrentPage(1);
+	}, [length, pageSize]);
 
 	const ThreeDots = () => {
 		return (
