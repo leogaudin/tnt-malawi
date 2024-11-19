@@ -196,7 +196,7 @@ function ScansMap({
 					},
 					paint: {
 						'line-color': 'white',
-						'line-opacity': 0.5,
+						'line-opacity': 0.75,
 						'line-width': 7,
 						'line-dasharray': [1, 2],
 					},

@@ -7,6 +7,7 @@ import {
 	Flex,
 	HStack,
 	Text,
+	Input,
 } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import { palette } from '../theme';
@@ -18,14 +19,23 @@ export default function BoxFiltering({
 	setFilteredBoxes,
 	setFiltersOutside = () => { }, // If you want to use the filters outside of this component
 	includeProgress = true,
+	includeSearch = true,
 }) {
 	const [filters, setLocalFilters] = useState([]);
 	const [progressFilter, setProgressFilter] = useState('any');
+	const [query, setQuery] = useState('');
 	const { t } = useTranslation();
 	const excludedFields = [
 		...excludedKeys,
 		'createdAt',
-	]
+	];
+
+	const fitsQuery = (box) => {
+		return Object.values(box).some((value) => {
+			if (typeof value === 'string')
+				return value.toLowerCase().includes(query.toLowerCase());
+		})
+	}
 
 	const getFilteredBoxes = () => {
 		return boxes?.filter((box) => {
@@ -33,6 +43,8 @@ export default function BoxFiltering({
 				(filters.length === 0 || filters.every((filter) => box[filter.field] === filter.value))
 				&&
 				(!includeProgress || (getProgress(box) === progressFilter || progressFilter === 'any'))
+				&&
+				(!includeSearch || !query || fitsQuery(box))
 			)
 		})
 	}
@@ -48,7 +60,7 @@ export default function BoxFiltering({
 		}
 
 		updateFilteredBoxes();
-	}, [boxes, filters, progressFilter, setFilteredBoxes]);
+	}, [boxes, filters, progressFilter, setFilteredBoxes, query]);
 
 	const availableOptions = boxes?.length
 		? Object.keys(boxes[0]).filter((field) => !excludedFields.includes(field))
@@ -192,6 +204,14 @@ export default function BoxFiltering({
 			>
 				{t('itemsSelected', { count: getFilteredBoxes().length })}
 			</Text>
+			{includeSearch &&
+				<Input
+					placeholder={`${t('customSearch')}...`}
+					value={query}
+					onChange={(e) => setQuery(e.target.value)}
+					focusBorderColor={palette.text}
+				/>
+			}
 		</Stack>
 	)
 }

@@ -16,7 +16,6 @@ export default function Pagination({
 	pageSize,
 	setPageSize,
 }) {
-	console.log(length, currentPage, pageSize, setCurrentPage, setPageSize);
 	if (!length || pageSize >= length)
 		return null;
 	const totalPages = Math.ceil(length / pageSize);
