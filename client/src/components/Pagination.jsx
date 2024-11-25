@@ -44,6 +44,16 @@ export default function Pagination({
 		)
 	}
 
+	const handlePrevious = () => {
+		if (currentPage > 1)
+			setCurrentPage(currentPage - 1);
+	}
+
+	const handleNext = () => {
+		if (currentPage < totalPages)
+			setCurrentPage(currentPage + 1);
+	}
+
 	return (
 		<Stack
 			align='center'
@@ -56,7 +66,7 @@ export default function Pagination({
 					bg={palette.background}
 					color={palette.primary.dark}
 					disabled={currentPage === 1}
-					onClick={() => setCurrentPage(currentPage - 1)}
+					onClick={handlePrevious}
 				>
 					{'<'}
 				</Button>
@@ -92,7 +102,7 @@ export default function Pagination({
 					bg={palette.background}
 					color={palette.primary.dark}
 					disabled={currentPage === totalPages}
-					onClick={() => setCurrentPage(currentPage + 1)}
+					onClick={handleNext}
 				>
 					{'>'}
 				</Button>

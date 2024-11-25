@@ -13,9 +13,9 @@ const router = express.Router();
 
 router.post('/admin', createOne(Admin));
 // router.post('/admins', createMany(Admin));
-router.delete('/admin/:id', deleteOne(Admin));
+// router.delete('/admin/:id', deleteOne(Admin));
 // router.delete('/admins', deleteMany(Admin));
-router.get('/admin/:id', getById(Admin));
-router.get('/admins', getAll(Admin));
+// router.get('/admin/:id', getById(Admin));
+// router.get('/admins', getAll(Admin));
 
 export default router;

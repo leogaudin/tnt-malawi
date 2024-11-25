@@ -3,8 +3,8 @@ import { requireApiKey } from '../apiKey.js';
 
 export const deleteOne = (Model) => async (req, res) => {
 	try {
-		requireApiKey(req, res, async () => {
-			const instance = await Model.findOneAndDelete({ id: req.params.id });
+		requireApiKey(req, res, async (admin) => {
+			const instance = await Model.findOneAndDelete({ id: req.params.id, adminId: admin.id });
 
 			if (!instance) {
 				return handle404Error(res);

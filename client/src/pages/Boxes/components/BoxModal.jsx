@@ -9,6 +9,7 @@ import {
 	Stack,
 	Flex,
 	Divider,
+	Button,
 } from '@chakra-ui/react'
 import { useTranslation } from 'react-i18next';
 import { QRCodeSVG } from 'qrcode.react';
@@ -16,6 +17,7 @@ import ScansMap from './ScansMap';
 import PagedTable from '../../../components/PagedTable';
 import { timeAgo } from '../../../service/utils';
 import { excludedKeys } from '../../../service/specific';
+import { callAPI } from '../../../service';
 
 export default function BoxModal({
 	isOpen,
@@ -23,6 +25,19 @@ export default function BoxModal({
 	box,
 }) {
 	const { t } = useTranslation();
+
+	const handleDelete = async () => {
+		if (window.confirm(t('deletePrompt'))) {
+			await callAPI(
+				'DELETE',
+				'boxes',
+				{ deleteConditions: { id: box.id } }
+			);
+
+			onClose();
+			window.location.reload();
+		}
+	}
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='5xl'>
@@ -64,6 +79,13 @@ export default function BoxModal({
 								level='H'
 							/>
 						</Flex>
+						<Button
+							colorScheme='red'
+							onClick={handleDelete}
+							variant='ghost'
+						>
+							{t('delete')}
+						</Button>
 						<Divider marginY={5} />
 						{box.scans?.length &&
 							<Flex

@@ -19,8 +19,8 @@ router.post('/box', createOne(Box));
 router.post('/boxes', createMany(Box));
 router.delete('/box/:id', deleteOne(Box));
 router.delete('/boxes', deleteMany(Box))
-router.get('/box/:id', getById(Box));
-router.get('/boxes', getAll(Box));
+// router.get('/box/:id', getById(Box));
+// router.get('/boxes', getAll(Box));
 router.get('/boxes/:adminId', async (req, res) => {
 	try {
 		const found = await Admin.findOne({ id: req.params.adminId });
