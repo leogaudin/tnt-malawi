@@ -1,7 +1,11 @@
 import { handle400Error, handle409Error, handle201Success } from '../errorHandlers.js';
 import { requireApiKey } from '../apiKey.js';
 import { generateId } from '../index.js';
+import { Model } from 'mongoose';
 
+/**
+ * @param {Model}	Model	a Mongoose model
+ */
 export const createOne = (Model) => async (req, res) => {
 	try {
 		requireApiKey(req, res, async () => {

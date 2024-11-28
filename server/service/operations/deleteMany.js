@@ -1,6 +1,10 @@
 import { handle400Error, handle404Error, handle200Success } from '../errorHandlers.js';
 import { requireApiKey } from '../apiKey.js';
+import { Model } from 'mongoose';
 
+/**
+ * @param {Model}	Model	a Mongoose model
+ */
 export const deleteMany = (Model) => async (req, res) => {
 	try {
 		requireApiKey(req, res, async (admin) => {

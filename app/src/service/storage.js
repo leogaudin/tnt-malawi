@@ -4,9 +4,14 @@ import { offlineKey } from '../constants';
 import { showToast } from './toast';
 
 /**
- * Stores a string in AsyncStorage
- * @param key   The key to store the value under
- * @param value The value to store
+ * @typedef {import('./api').Scan} Scan
+ */
+
+/**
+ * Stores a string in AsyncStorage.
+ *
+ * @param {String} key   The key to store the value under
+ * @param {String} value The value to store
  */
 export const storeString = async (key, value) => {
 	try {
@@ -17,9 +22,10 @@ export const storeString = async (key, value) => {
 };
 
 /**
- * Retrieves a string from AsyncStorage
- * @param key The key to retrieve the value from
- * @returns   The value stored under the given key
+ * Retrieves a string from AsyncStorage.
+ *
+ * @param {String} key The key to retrieve the value from
+ * @returns {String} The value stored under the key
  */
 export const getString = async (key) => {
 	try {
@@ -33,8 +39,9 @@ export const getString = async (key) => {
 };
 
 /**
- * Removes a string from AsyncStorage
- * @param key The key to remove the value from
+ * Removes a string from AsyncStorage.
+ *
+ * @param {String} key The key to remove the value from
  */
 export const removeValue = async (key) => {
 	try {
@@ -46,8 +53,9 @@ export const removeValue = async (key) => {
 };
 
 /**
- * Stores a scan object in the offline storage
- * @param dataToSend The data to store offline, as a scan object
+ * Stores a scan object in the offline storage.
+ *
+ * @param {Scan}	dataToSend	The scan object to store
  */
 export const storeOfflineData = (dataToSend) => {
 	AsyncStorage.getItem(offlineKey)
@@ -64,6 +72,13 @@ export const storeOfflineData = (dataToSend) => {
 		});
 };
 
+/**
+ * Sends offline scans to the server.
+ *
+ * @param {Array<Scan>}	offlineData		The offline data to send
+ * @param {Function}	setOfflineData	The function to set the offline data
+ * @param {Array<Scan>}	failedData		The failed data to send
+ */
 export const sendOfflineData = (offlineData, setOfflineData, failedData = []) => {
 	if (offlineData.length > 0) {
 		const scanToSend = offlineData[0];

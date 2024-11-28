@@ -2,7 +2,11 @@ import lzstring from 'lz-string';
 import { handle400Error, handle201Success, handle206Success } from '../errorHandlers.js';
 import { requireApiKey } from '../apiKey.js';
 import { generateId } from '../index.js';
+import { Model } from 'mongoose';
 
+/**
+ * @param {Model}	Model	a Mongoose model
+ */
 export const createMany = (Model) => async (req, res) => {
 	try {
 		requireApiKey(req, res, async () => {

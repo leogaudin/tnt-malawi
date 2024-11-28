@@ -1,6 +1,10 @@
 import { Platform, PermissionsAndroid } from 'react-native';
 import { PERMISSIONS, request } from 'react-native-permissions';
 
+/**
+ * Requests permission for location and camera
+ * @returns {Promise<{location: boolean, camera: boolean}>}
+ */
 export const requestAllPermissions = async () => {
 	try {
 		if (Platform.OS === 'android') {

@@ -1,33 +1,73 @@
+/**
+ *	@typedef {Object} Scan
+ *	@property {Date} time
+ *	@property {boolean} finalDestination
+ *	@property {boolean} markedAsReceived
+ */
+
+/**
+ * @typedef {Object} StatusChanges
+ * @property {Date | null} inProgress
+ * @property {Date | null} reachedGps
+ * @property {Date | null} reachedAndReceived
+ * @property {Date | null} received
+ * @property {Date | null} validated
+ */
+
+/**
+ * @typedef {Object} Box
+ * @property {Array<Scan>} scans
+ * @property {StatusChanges} statusChanges
+ */
+
+/**
+ * @typedef {'noScans' | 'inProgress' | 'reachedGps' | 'received' | 'reachedAndReceived' | 'validated'} Progress
+ */
+
+/**
+ * Returns the last scan with finalDestination set to true.
+ * Returns null if none found.
+ *
+ * @param {Box} box
+ * @returns {Scan | null}
+ */
 export function getLastFinalScan(box) {
-	const scans = box.scans;
-	if (!scans || !scans.length) return null;
-	const finalScans = scans.filter(scan => scan.finalDestination);
-	if (!finalScans.length) return null;
-	return finalScans.reduce((acc, scan) => {
-		return acc.time > scan.time ? acc : scan;
-	});
+	return box.scans?.reduce((acc, scan) => {
+		return scan.finalDestination && (acc?.time || 0) < scan.time ? scan : acc;
+	}, null);
 }
 
+/**
+ * Returns the last scan with markedAsReceived set to true.
+ * Returns null if none found.
+ *
+ * @param {Box} box
+ * @returns {Scan | null}
+ */
 export function getLastMarkedAsReceivedScan(box) {
-	const scans = box.scans;
-	if (!scans || !scans.length) return null;
-	const markedAsReceivedScans = scans.filter(scan => scan.markedAsReceived);
-	if (!markedAsReceivedScans.length) return null;
-	return markedAsReceivedScans.reduce((acc, scan) => {
-		return acc.time > scan.time ? acc : scan;
-	});
+	return box.scans?.reduce((acc, scan) => {
+		return scan.markedAsReceived && (acc?.time || 0) < scan.time ? scan : acc;
+	}, null);
 }
 
+/**
+ * Returns the last scan with finalDestination set to true and markedAsReceived set to true.
+ * Returns null if none found.
+ * @param {Box} box
+ * @returns {Scan | null}
+ */
 export function getLastValidatedScan(box) {
-	const scans = box.scans;
-	if (!scans || !scans.length) return null;
-	const validatedScans = scans.filter(scan => scan.finalDestination && scan.markedAsReceived);
-	if (!validatedScans.length) return null;
-	return validatedScans.reduce((acc, scan) => {
-		return acc.time > scan.time ? acc : scan;
-	});
+	return box.scans?.reduce((acc, scan) => {
+		return scan.finalDestination && scan.markedAsReceived && (acc?.time || 0) < scan.time ? scan : acc;
+	}, null);
 }
 
+/**
+ * Returns the progress of the box.
+ *
+ * @param {Box} box
+ * @returns {Progress}
+ */
 export function getProgress(box) {
 	if (!box?.scans || box?.scans?.length === 0) {
 		return 'noScans';
@@ -56,6 +96,13 @@ export function getProgress(box) {
 	return 'inProgress';
 }
 
+/**
+ * Returns the percentage of boxes with a given status.
+ *
+ * @param {Array<Box>}	sample
+ * @param {Progress}	status?
+ * @returns {number}
+ */
 export function getStatusPercentage(sample, status = 'validated') {
 	const boxes = sample.map(box => { return { ...box, progress: getProgress(box) } });
 
@@ -64,6 +111,13 @@ export function getStatusPercentage(sample, status = 'validated') {
 	return (deliveredBoxes / sample.length) * 100;
 }
 
+/**
+ * Returns the repartition of boxes in a sample.
+ *
+ * @param {Array<Box>}	sample
+ * @param {number}		notAfterTimestamp?
+ * @returns {Object}
+ */
 export function sampleToRepartition(sample, notAfterTimestamp = Date.now()) {
 	const repartition = {
 		noScans: 0,
@@ -91,6 +145,12 @@ export function sampleToRepartition(sample, notAfterTimestamp = Date.now()) {
 	return repartition;
 }
 
+/**
+ * Returns the timeline of a sample.
+ *
+ * @param {Array<Box>}	sample
+ * @returns {Array<Object>}
+ */
 export function sampleToTimeline(sample) {
 	const allTimestamps = sample
 							.map(box => box.statusChanges)
@@ -121,6 +181,12 @@ export function sampleToTimeline(sample) {
 	return data;
 }
 
+/**
+ * Computes the insights for a sample of boxes.
+ *
+ * @param {Array<Box>}	sample
+ * @param {Function}	setInsights	The function to set the insights
+ */
 export function computeInsights(boxes, setInsights) {
 	if (!boxes || boxes.length === 0) {
 		setInsights({});

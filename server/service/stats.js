@@ -1,33 +1,73 @@
+/**
+ *	@typedef {Object} Scan
+ *	@property {Date} time
+ *	@property {boolean} finalDestination
+ *	@property {boolean} markedAsReceived
+ */
+
+/**
+ * @typedef {Object} StatusChanges
+ * @property {Date | null} inProgress
+ * @property {Date | null} reachedGps
+ * @property {Date | null} reachedAndReceived
+ * @property {Date | null} received
+ * @property {Date | null} validated
+ */
+
+/**
+ * @typedef {Object} Box
+ * @property {Array<Scan>} scans
+ * @property {StatusChanges} statusChanges
+ */
+
+/**
+ * @typedef {'noScans' | 'inProgress' | 'reachedGps' | 'received' | 'reachedAndReceived' | 'validated'} Progress
+ */
+
+/**
+ * Returns the last scan with finalDestination set to true.
+ * Returns null if none found.
+ *
+ * @param {Box} box
+ * @returns {Scan | null}
+ */
 export function getLastFinalScan(box) {
-	const scans = box.scans;
-	if (!scans || !scans.length) return null;
-	const finalScans = scans.filter(scan => scan.finalDestination);
-	if (!finalScans.length) return null;
-	return finalScans.reduce((acc, scan) => {
-		return acc.time > scan.time ? acc : scan;
-	});
+	return box.scans?.reduce((acc, scan) => {
+		return scan.finalDestination && (acc?.time || 0) < scan.time ? scan : acc;
+	}, null);
 }
 
+/**
+ * Returns the last scan with markedAsReceived set to true.
+ * Returns null if none found.
+ *
+ * @param {Box} box
+ * @returns {Scan | null}
+ */
 export function getLastMarkedAsReceivedScan(box) {
-	const scans = box.scans;
-	if (!scans || !scans.length) return null;
-	const markedAsReceivedScans = scans.filter(scan => scan.markedAsReceived);
-	if (!markedAsReceivedScans.length) return null;
-	return markedAsReceivedScans.reduce((acc, scan) => {
-		return acc.time > scan.time ? acc : scan;
-	});
+	return box.scans?.reduce((acc, scan) => {
+		return scan.markedAsReceived && (acc?.time || 0) < scan.time ? scan : acc;
+	}, null);
 }
 
+/**
+ * Returns the last scan with finalDestination set to true and markedAsReceived set to true.
+ * Returns null if none found.
+ * @param {Box} box
+ * @returns {Scan | null}
+ */
 export function getLastValidatedScan(box) {
-	const scans = box.scans;
-	if (!scans || !scans.length) return null;
-	const validatedScans = scans.filter(scan => scan.finalDestination && scan.markedAsReceived);
-	if (!validatedScans.length) return null;
-	return validatedScans.reduce((acc, scan) => {
-		return acc.time > scan.time ? acc : scan;
-	});
+	return box.scans?.reduce((acc, scan) => {
+		return scan.finalDestination && scan.markedAsReceived && (acc?.time || 0) < scan.time ? scan : acc;
+	}, null);
 }
 
+/**
+ * Returns the progress of the box.
+ *
+ * @param {Box} box
+ * @returns {Progress}
+ */
 export function getProgress(box) {
 	if (!box?.scans || box?.scans?.length === 0) {
 		return 'noScans';
@@ -57,16 +97,12 @@ export function getProgress(box) {
 }
 
 /**
- * Adds to each box an object of statuses as
- * {
- * 	inProgress: Date,
- * 	reachedGps: Date,
- * 	reachedAndReceived: Date,
- * 	received: Date,
- * 	validated: Date
- * }
- * For each status, determine when it was reached for the first time
- * @param {Array} sample
+ *
+ * Adds to each box an object of statuses.
+ * For each status, determine when it was reached for the first time.
+ * Mutates the input array.
+ *
+ * @param {Array<Box>} sample	Boxes to index
  */
 export function indexStatusChanges(sample) {
 	sample.forEach(box => {

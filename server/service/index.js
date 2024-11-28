@@ -1,14 +1,29 @@
 import crypto from 'crypto'
 
+/**
+ *
+ * @param {string}	str	String to hash
+ * @returns {string}	Hashed string
+ */
 export async function sha512(str) {
 	const buf = await crypto.subtle.digest('SHA-512', new TextEncoder('utf-8').encode(str));
 	return Array.prototype.map.call(new Uint8Array(buf), x => (('00' + x.toString(16)).slice(-2))).join('');
 }
 
+/**
+ *
+ * @returns {string}	A random string of 10-11 characters (a-zA-Z0-9)
+ */
 export function generateId() {
 	return crypto.randomBytes(8).toString('base64').replace(/[^a-zA-Z0-9]/g, '');
 }
 
+/**
+ *
+ * @param {{ latitude: number, longitude: number }}	coord1	1st set of coordinates
+ * @param {{ latitude: number, longitude: number }}	coord2	2nd set of coordinates
+ * @returns {number}	Distance between the two coordinates, in meters
+ */
 function haversineDistance(coord1, coord2) {
 	const earthRadiusInMeters = 6378137;
 	const { latitude: lat1, longitude: lon1 } = coord1;
@@ -29,6 +44,12 @@ function haversineDistance(coord1, coord2) {
 	return distance;
 }
 
+/**
+ *
+ * @param {{ latitude: number, longitude: number }}	schoolCoords	Destination coordinates
+ * @param {{ latitude: number, longitude: number, accuracy?: number }}	boxCoords	Box coordinates
+ * @returns {boolean}	True if the box is within 1km of the destination, false otherwise
+ */
 export function isFinalDestination(schoolCoords, boxCoords) {
 	const distance = haversineDistance(schoolCoords, boxCoords);
     const toleranceInMeters = 1000;

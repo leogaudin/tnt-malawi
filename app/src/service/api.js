@@ -1,6 +1,18 @@
 import { API_URL } from './specific';
 import { showToast } from './toast';
 
+/**
+ *	@typedef {Object} Scan
+ *	@property {Date} time
+ *	@property {boolean} finalDestination
+ *	@property {boolean} markedAsReceived
+ */
+
+/**
+ *
+ * @param {Scan} data
+ * @returns {Promise<Scan>}
+ */
 export function sendScan(data) {
 	return new Promise((resolve, reject) => {
 		fetch(`${API_URL}/scan`, {

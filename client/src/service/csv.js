@@ -1,32 +1,13 @@
 import Papa from 'papaparse';
-import SparkMD5 from 'spark-md5';
 import { callAPI } from '.';
 import lzstring from 'lz-string';
 import { boxFields, essentialFields } from './specific';
 
-// export async function addBoxes(payload) {
-// 	return new Promise((resolve, reject) => {
-// 		const data = JSON.parse(lzstring.decompressFromEncodedURIComponent(payload.data));
-// 		const invalidInstances = [];
-// 		const validInstances = [];
-
-// 		data.forEach((instance) => {
-// 			if (Math.random() < 0.5) {
-// 				invalidInstances.push(instance);
-// 			} else {
-// 				validInstances.push(instance);
-// 			}
-// 		});
-
-// 		setTimeout(() => {
-// 			resolve({
-// 				invalidInstances,
-// 				validInstances,
-// 			});
-// 		}, Math.random() * 5000);
-// 	});
-// }
-
+/**
+ *
+ * @param {File}		file		The file to be uploaded
+ * @param {Function}	setOutput	Function to set the output of the upload
+ */
 export async function uploadDistributionList(file, setOutput) {
 	const data = await file.text();
 	const boxes = [];
@@ -139,6 +120,11 @@ export async function uploadDistributionList(file, setOutput) {
 	})
 }
 
+/**
+ *
+ * @param {File}		file		The file to be uploaded
+ * @param {Function}	setOutput	Function to set the output of the upload
+ */
 export async function updateGPSCoordinates(file, setOutput) {
 	const data = await file.text();
 	const boxes = [];

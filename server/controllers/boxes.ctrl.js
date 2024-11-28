@@ -70,10 +70,6 @@ router.post('/boxes/coords', async (req, res) => {
 		const { boxes } = req.body;
 
 		requireApiKey(req, res, async (admin) => {
-			let updatedCount = 0;
-			let matchedCount = 0;
-			let recalculatedCount = 0;
-
 			const boxUpdate = boxes.map((box) => {
 				return {
 					updateMany: {
@@ -85,39 +81,50 @@ router.post('/boxes/coords', async (req, res) => {
 			});
 
 			const boxUpdateResult = await Box.bulkWrite(boxUpdate);
-			updatedCount += boxUpdateResult.modifiedCount;
-			matchedCount += boxUpdateResult.matchedCount;
+			const updated = boxUpdateResult.modifiedCount;
+			const matched = boxUpdateResult.matchedCount;
+
+			if (updated === 0)
+				return res.status(200).json({ success: true, updated, matched, recalculated: 0 });
 
 			const boxesToUpdate = await Box.find({
 				adminId: admin.id,
 				$or: boxes.map((box) => ({ school: box.school, district: box.district }))
 			});
 
-			const scansUpdate = boxesToUpdate.map((box) => {
-				const scans = box.scans || [];
-				scans.forEach((scan) => {
-					const schoolCoords = {
-						latitude: box.schoolLatitude,
-						longitude: box.schoolLongitude,
-					};
-					const scanCoords = {
-						latitude: scan.location.coords.latitude,
-						longitude: scan.location.coords.longitude,
-					};
-					scan.finalDestination = isFinalDestination(schoolCoords, scanCoords);
+			const scansUpdate = boxesToUpdate
+				.filter((box) => {
+					const boxFromRequest = boxes.find((b) => b.school === box.school && b.district === box.district);
+					return boxFromRequest.schoolLatitude !== box.schoolLatitude || boxFromRequest.schoolLongitude !== box.schoolLongitude;
+				})
+				.map((box) => {
+					const newScans = box.scans.map((scan) => {
+						const schoolCoords = {
+							latitude: boxFromRequest.schoolLatitude,
+							longitude: boxFromRequest.schoolLongitude,
+						};
+						const scanCoords = {
+							latitude: scan.location.coords.latitude,
+							longitude: scan.location.coords.longitude,
+						};
+						scan.finalDestination = isFinalDestination(schoolCoords, scanCoords);
+						return scan;
+					});
+
+					if (newScans.some((scan, index) => scan.finalDestination !== box.scans[index].finalDestination)) {
+						return {
+							updateOne: {
+								filter: { id: box.id },
+								update: { $set: { scans: box.scans } },
+							},
+						};
+					}
 				});
-				return {
-					updateOne: {
-						filter: { id: box.id },
-						update: { $set: { scans: box.scans } },
-					},
-				};
-			});
 
 			const scansUpdateResult = await Box.bulkWrite(scansUpdate);
-			recalculatedCount += scansUpdateResult.modifiedCount;
+			const recalculated = scansUpdateResult.modifiedCount;
 
-			return res.status(200).json({ success: true, updatedCount, matchedCount, recalculatedCount });
+			return res.status(200).json({ success: true, updated, matched, recalculated });
 		});
 	} catch (error) {
 		console.error(error);

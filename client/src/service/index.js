@@ -22,6 +22,17 @@ export const user = JSON.parse(localStorage.getItem('user'));
 
 export const navbarWidth = '250px';
 
+/**
+ * Calls the API with the given parameters
+ *
+ * @param {String} 			method		HTTP method to be used
+ * @param {String} 			endpoint	Endpoint to be called
+ * @param {Object}			data?		Data to be sent in the request
+ * @param {Object}			headers?	Headers to be sent in the request
+ * @param {AbortSignal}		signal?		AbortSignal to be used in the request
+ *
+ * @returns {Promise<Response>}			Response of the request
+ */
 export const callAPI = async (method, endpoint, data = null, headers = {}, signal = null) => {
 	const authorization = user?.apiKey || '';
 	const requestHeaders = {
@@ -41,6 +52,14 @@ export const callAPI = async (method, endpoint, data = null, headers = {}, signa
 	return response;
 }
 
+/**
+ * Fetches all boxes from the API
+ *
+ * @param {String}			id			ID of the user
+ * @param {Function}		setBoxes	Function to set the boxes
+ *
+ * @returns {Array}			Array of boxes
+ */
 export async function fetchAllBoxes(id, setBoxes) {
 	try {
 		setBoxes(null);

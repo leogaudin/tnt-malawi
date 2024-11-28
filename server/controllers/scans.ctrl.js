@@ -29,7 +29,7 @@ router.post('/scan', async (req, res) => {
 			comment,
 			operatorId,
 			location,
-			time,
+			time: Date.now(),
 			markedAsReceived,
 			finalDestination: isFinalDestination(schoolCoords, scanCoords),
 		};
