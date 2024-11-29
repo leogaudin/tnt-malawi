@@ -34,7 +34,29 @@ router.post('/scan', async (req, res) => {
 			finalDestination: isFinalDestination(schoolCoords, scanCoords),
 		};
 
-		box.scans = [...box.scans, newScan];
+		const statusChanges = box.statusChanges || {
+			inProgress: null,
+			reachedGps: null,
+			reachedAndReceived: null,
+			received: null,
+			validated: null,
+		};
+
+		if (newScan.finalDestination && newScan.markedAsReceived) {
+			statusChanges.validated ??= newScan.time;
+		}
+		else if (newScan.finalDestination) {
+			statusChanges[statusChanges.received ? 'reachedAndReceived' : 'reachedGps'] ??= newScan.time;
+		}
+		else if (newScan.markedAsReceived) {
+			statusChanges[statusChanges.reachedGps ? 'reachedAndReceived' : 'received'] ??= newScan.time;
+		}
+
+		statusChanges.inProgress ??= newScan.time;
+
+		box.statusChanges = statusChanges;
+		box.scans = [...(box.scans || []), newScan];
+
 		await box.save();
 
 		return res.status(200).json({ message: 'Scan added successfully', box });
