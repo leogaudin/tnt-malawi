@@ -131,7 +131,7 @@ export function sampleToRepartition(sample, notAfterTimestamp = Date.now()) {
 
 	for (const box of sample) {
 		const changes = box.statusChanges;
-		const statuses = Object.keys(changes).filter(status => changes[status] !== null);
+		const statuses = Object.keys(changes || {}).filter(status => changes[status] !== null);
 		const lastStatus = statuses.reduce((acc, curr) => {
 			if (changes[curr] >= (changes[acc] || 0) && changes[curr] <= notAfterTimestamp)
 				return curr;
@@ -154,7 +154,7 @@ export function sampleToRepartition(sample, notAfterTimestamp = Date.now()) {
 export function sampleToTimeline(sample) {
 	const allTimestamps = sample
 							.map(box => box.statusChanges)
-							.map(statusChanges => Object.values(statusChanges).filter(timestamp => !!timestamp))
+							.map(statusChanges => Object.values(statusChanges || {}).filter(timestamp => !!timestamp))
 							.flat();
 
 	const oneDay = 86400000;
