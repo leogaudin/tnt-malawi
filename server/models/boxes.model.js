@@ -22,6 +22,7 @@ const Box = new Schema(
 		schoolLatitude: { type: Number, required: true},
 		schoolLongitude: { type: Number, required: true},
 		statusChanges: { type: Object, required: false },
+		progress: { type: String, required: false },
 	}
 )
 

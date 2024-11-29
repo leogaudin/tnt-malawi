@@ -30,8 +30,6 @@ router.get('/boxes/:adminId', async (req, res) => {
 		if (found.publicInsights && !req.headers['x-authorization']) {
 			const boxes = await Box.find({ adminId: req.params.adminId }).skip(parseInt(req.query.skip)).limit(parseInt(req.query.limit));
 
-			indexStatusChanges(boxes);
-
 			if (!boxes.length)
 				return res.status(404).json({ success: false, error: `No boxes available` });
 
@@ -51,8 +49,6 @@ router.get('/boxes/:adminId', async (req, res) => {
 				return res.status(401).json({ success: false, error: `Unauthorized` });
 
 			const boxes = await Box.find({ adminId: req.params.adminId }).skip(parseInt(req.query.skip)).limit(parseInt(req.query.limit));
-
-			indexStatusChanges(boxes);
 
 			if (!boxes.length)
 				return res.status(404).json({ success: false, error: `No boxes available` });

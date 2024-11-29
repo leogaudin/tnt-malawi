@@ -1,6 +1,7 @@
 import Box from '../models/boxes.model.js';
 import express from 'express'
 import { generateId, isFinalDestination } from '../service/index.js';
+import { getProgress } from '../service/stats.js';
 
 const router = express.Router()
 
@@ -65,7 +66,7 @@ router.post('/scan', async (req, res) => {
 
 		await Box.updateOne({ id: boxId }, {
 			$push: { scans: newScan },
-			$set: { statusChanges },
+			$set: { statusChanges, progress: getProgress(box) }
 		});
 
 		return res.status(200).json({ message: 'Scan added successfully', box });
