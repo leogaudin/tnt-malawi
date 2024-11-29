@@ -46,18 +46,27 @@ router.post('/scan', async (req, res) => {
 			statusChanges.validated ??= newScan.time;
 		}
 		else if (newScan.finalDestination) {
-			statusChanges[statusChanges.received ? 'reachedAndReceived' : 'reachedGps'] ??= newScan.time;
+			if (statusChanges.received) {
+				statusChanges.reachedAndReceived ??= newScan.time;
+			} else {
+				statusChanges.reachedGps ??= newScan.time;
+			}
 		}
 		else if (newScan.markedAsReceived) {
-			statusChanges[statusChanges.reachedGps ? 'reachedAndReceived' : 'received'] ??= newScan.time;
+			if (statusChanges.reachedGps) {
+				statusChanges.reachedAndReceived ??= newScan.time;
+			} else {
+				statusChanges.received ??= newScan.time;
+			}
+		}
+		else if (Object.values(statusChanges).every(status => !status)) {
+			statusChanges.inProgress = newScan.time;
 		}
 
-		statusChanges.inProgress ??= newScan.time;
-
-		box.statusChanges = statusChanges;
-		box.scans = [...(box.scans || []), newScan];
-
-		await box.save();
+		await Box.updateOne({ id: boxId }, {
+			$push: { scans: newScan },
+			$set: { statusChanges },
+		});
 
 		return res.status(200).json({ message: 'Scan added successfully', box });
 	} catch (error) {
