@@ -32,9 +32,12 @@
  * @returns {Scan | null}
  */
 export function getLastFinalScan(box) {
-	return box.scans?.reduce((acc, scan) => {
-		return scan.finalDestination && (acc?.time || 0) < scan.time ? scan : acc;
-	}, null);
+	for (const scan of box.scans) {
+		if (scan.finalDestination) {
+			return scan;
+		}
+	}
+	return null;
 }
 
 /**
@@ -45,9 +48,12 @@ export function getLastFinalScan(box) {
  * @returns {Scan | null}
  */
 export function getLastMarkedAsReceivedScan(box) {
-	return box.scans?.reduce((acc, scan) => {
-		return scan.markedAsReceived && (acc?.time || 0) < scan.time ? scan : acc;
-	}, null);
+	for (const scan of box.scans) {
+		if (scan.markedAsReceived) {
+			return scan;
+		}
+	}
+	return null;
 }
 
 /**
@@ -57,9 +63,12 @@ export function getLastMarkedAsReceivedScan(box) {
  * @returns {Scan | null}
  */
 export function getLastValidatedScan(box) {
-	return box.scans?.reduce((acc, scan) => {
-		return scan.finalDestination && scan.markedAsReceived && (acc?.time || 0) < scan.time ? scan : acc;
-	}, null);
+	for (const scan of box.scans) {
+		if (scan.finalDestination && scan.markedAsReceived) {
+			return scan;
+		}
+	}
+	return null;
 }
 
 /**
@@ -68,10 +77,25 @@ export function getLastValidatedScan(box) {
  * @param {Box} box
  * @returns {Progress}
  */
-export function getProgress(box) {
+export function getProgress(box, notAfterTimestamp = Date.now()) {
+	if (box.statusChanges) {
+		let lastStatus = 'noScans';
+
+		for (const [status, timestamp] of Object.entries(box.statusChanges)) {
+			if (timestamp && timestamp <= notAfterTimestamp) {
+				lastStatus = status;
+			}
+		}
+
+		return lastStatus;
+	}
+	// Legacy code
 	if (!box?.scans || box?.scans?.length === 0) {
 		return 'noScans';
 	}
+
+	const scans = box.scans.filter(scan => scan.time <= notAfterTimestamp);
+	box = { ...box, scans };
 
 	const lastValidatedScan = getLastValidatedScan(box);
 	if (lastValidatedScan) {
@@ -104,7 +128,7 @@ export function getProgress(box) {
  * @returns {number}
  */
 export function getStatusPercentage(sample, status = 'validated') {
-	const boxes = sample.map(box => { return { ...box, progress: getProgress(box) } });
+	const boxes = sample.map(box => { return { ...box, progress: box.progress || getProgress(box) } });
 
 	const deliveredBoxes = boxes.filter(box => box.progress === status).length;
 
@@ -130,16 +154,8 @@ export function sampleToRepartition(sample, notAfterTimestamp = Date.now()) {
 	};
 
 	for (const box of sample) {
-		const changes = box.statusChanges;
-		const statuses = Object.keys(changes || {}).filter(status => changes[status] !== null);
-		const lastStatus = statuses.reduce((acc, curr) => {
-			if (changes[curr] >= (changes[acc] || 0) && changes[curr] <= notAfterTimestamp)
-				return curr;
-
-			return acc;
-		}, 'noScans');
-
-		repartition[lastStatus]++;
+		const progress = getProgress(box, notAfterTimestamp);
+		repartition[progress]++;
 	}
 
 	return repartition;

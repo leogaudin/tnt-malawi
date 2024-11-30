@@ -42,7 +42,7 @@ export default function BoxFiltering({
 			return (
 				(filters.length === 0 || filters.every((filter) => box[filter.field] === filter.value))
 				&&
-				(!includeProgress || (getProgress(box) === progressFilter || progressFilter === 'any'))
+				(!includeProgress || ((box.progress || getProgress(box)) === progressFilter || progressFilter === 'any'))
 				&&
 				(!includeSearch || !query || fitsQuery(box))
 			)

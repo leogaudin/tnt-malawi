@@ -29,7 +29,7 @@ export default function BoxCard({
 		return acc;
 	}, null)
 
-	const progress = getProgress(box);
+	const progress = box.progress || getProgress(box);
 
 	const progressMeta = progresses.find((p) => p.key === progress);
 
