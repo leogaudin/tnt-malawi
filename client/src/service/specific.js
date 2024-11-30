@@ -60,4 +60,5 @@ export const excludedKeys = [
 	'schoolLongitude',
 	'statusChanges',
 	'progress',
+	'content',
 ];

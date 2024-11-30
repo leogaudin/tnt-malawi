@@ -129,7 +129,7 @@ export function getProgress(box, notAfterTimestamp = Date.now()) {
  * @param {Array<Box>} sample	Boxes to index
  */
 export function indexStatusChanges(sample) {
-	sample.forEach(box => {
+	return sample.map(box => {
 		const scans = box.scans;
 		scans.sort((a, b) => a.time - b.time); // First scan is the oldest
 
@@ -144,32 +144,31 @@ export function indexStatusChanges(sample) {
 		for (const scan of scans) {
 			if (scan.finalDestination && scan.markedAsReceived) {
 				statusChanges.validated ??= scan.time;
-				break;
 			}
-
-			if (scan.finalDestination) {
+			else if (scan.finalDestination) {
 				if (statusChanges.received) {
 					statusChanges.reachedAndReceived ??= scan.time;
 				} else {
 					statusChanges.reachedGps ??= scan.time;
 				}
-				continue;
 			}
-
-			if (scan.markedAsReceived) {
+			else if (scan.markedAsReceived) {
 				if (statusChanges.reachedGps) {
 					statusChanges.reachedAndReceived ??= scan.time;
 				} else {
 					statusChanges.received ??= scan.time;
 				}
-				continue;
 			}
-
-			if (Object.values(statusChanges).every(status => !status)) {
+			else if (Object.values(statusChanges).every(status => !status)) {
 				statusChanges.inProgress = scan.time;
 			}
 		}
 
-		box.statusChanges = statusChanges;
+		return {
+			updateOne: {
+				filter: { id: box.id },
+				update: { $set: { statusChanges, progress: getProgress(box) } }
+			}
+		}
 	});
 }
