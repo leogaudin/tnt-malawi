@@ -34,6 +34,10 @@ export default function BoxModal({
 		.then(setScans);
 	}, []);
 
+	const fetchScans = async (_, __) => {
+		return scans.sort((a, b) => new Date(b.time) - new Date(a.time))
+	};
+
 	const handleDelete = async () => {
 		if (window.confirm(t('deletePrompt'))) {
 			await callAPI(
@@ -107,7 +111,7 @@ export default function BoxModal({
 							>
 								<ScansMap box={{ ...box, scans }} />
 								<PagedTable
-									elements={scans}
+									fetchElements={fetchScans}
 									headers={[
 										t('time'),
 										t('comment'),

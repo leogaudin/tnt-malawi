@@ -21,52 +21,35 @@ import Pagination from './Pagination';
 import Loading from './Loading';
 
 export default function PagedTable({
+	count,
+	fetchElements,
 	headers,
 	fields,
-	elements,
 	transforms,
 	onRowClick,
-	excludeIf,
 	allowToChoosePageSize = true,
 	...props
 }) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(50);
-	const [sortField, setSortField] = useState('time');
-	const [sortOrder, setSortOrder] = useState('desc');
-	const [processedElements, setProcessedElements] = useState(null);
+	const [elements, setElements] = useState(null);
+	const [loading, setLoading] = useState(false);
 
 	const { t } = useTranslation();
 
-	const sort = (sample) => {
-		if (!sample) return;
-		const sortedSample = [...sample].sort((a, b) => {
-			if (a[sortField] < b[sortField]) {
-				return sortOrder === 'asc' ? -1 : 1;
-			}
-			if (a[sortField] > b[sortField]) {
-				return sortOrder === 'asc' ? 1 : -1;
-			}
-			return 0;
-		});
-		return sortedSample;
-	}
+	useEffect(() => {
+		setLoading(true);
+		fetchElements((currentPage - 1) * pageSize, pageSize)
+			.then((data) => {
+				setElements(data);
+				setLoading(false);
+			});
+	}, [currentPage, pageSize]);
 
 	useEffect(() => {
-		setCurrentPage(1);
-		const cleanElements = elements?.filter(element => {
-			if (!excludeIf) return true;
-			return !excludeIf(element);
-		});
-		setProcessedElements(sort(cleanElements));
-	}, [elements, excludeIf]);
-
-	const getElementsToDisplay = () => {
-		if (!processedElements) return null;
-		const start = (currentPage - 1) * pageSize;
-		const end = start + pageSize;
-		return sort(processedElements.slice(start, end));
-	}
+		if (currentPage > Math.ceil(count / pageSize))
+			setCurrentPage(1);
+	}, [count, pageSize]);
 
 	const conditionPill = (condition) => {
 		return condition
@@ -77,19 +60,19 @@ export default function PagedTable({
 				text={t('yes')}
 			/>
 			: null;
-			// : <Pill
-			// 	variant='solid'
-			// 	icon={<icons.close />}
-			// 	color='error'
-			// 	text={t('no')}
-			// />
 	}
 
-	const pageSizes = [10, 20, 50, 100, 500];
-
-	if (!elements) return <Loading />;
+	if (loading || !elements)
+		return <Loading />;
 	return (
 		<Stack>
+			<Pagination
+				length={count}
+				currentPage={currentPage}
+				setCurrentPage={setCurrentPage}
+				pageSize={pageSize}
+				setPageSize={setPageSize}
+			/>
 			<TableContainer>
 				<Table layout='fixed'>
 					<Thead>
@@ -97,25 +80,16 @@ export default function PagedTable({
 							{headers.map((header, index) => (
 								<Th
 									key={index}
-									onClick={() => {
-										setSortField(fields[index]);
-										setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-										sort();
-									}}
-									cursor='pointer'
 								>
 									<HStack>
-										<>{header}</>
-										{sortField === fields[index] && (
-											<>{sortOrder === 'asc' ? <icons.up /> : <icons.down />}</>
-										)}
+										{header}
 									</HStack>
 								</Th>
 							))}
 						</Tr>
 					</Thead>
 					<Tbody>
-						{getElementsToDisplay()?.map((element, index) => {
+						{elements?.map((element, index) => {
 							return (
 								<Tr
 									key={index}
@@ -146,13 +120,6 @@ export default function PagedTable({
 					</Tbody>
 				</Table>
 			</TableContainer>
-			<Pagination
-				length={processedElements?.length}
-				currentPage={currentPage}
-				setCurrentPage={setCurrentPage}
-				pageSize={pageSize}
-				setPageSize={setPageSize}
-			/>
 		</Stack>
 	)
 }

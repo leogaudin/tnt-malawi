@@ -5,24 +5,44 @@ import { useTranslation } from 'react-i18next';
 import { useDisclosure } from '@chakra-ui/react';
 import BoxModal from '../Boxes/components/BoxModal';
 import { timeAgo } from '../../service/utils';
-import { fetchAllScans } from '../../service';
+import { callAPI } from '../../service';
 
 export default function Scans() {
 	const { boxes } = useContext(AppContext);
 	const { t } = useTranslation();
 	const [selectedBox, setSelectedBox] = useState(null);
 	const { isOpen, onClose, onOpen } = useDisclosure();
-	const [scans, setScans] = useState(null);
-
-	useEffect(() => {
-		fetchAllScans()
-			.then(setScans);
-	}, []);
+	const [count, setCount] = useState(0);
 
 	const handleClick = (element) => {
 		setSelectedBox(element.boxId);
 		onOpen();
 	}
+
+	const fetchCount = async () => {
+		const response = await callAPI('GET', 'scans/count');
+		const json = await response.json();
+
+		return json.data?.count || 0;
+	};
+
+	useEffect(() => {
+		fetchCount()
+			.then(count => {
+				setCount(Math.min(count, 42000));
+			});
+	}, []);
+
+	const fetchScans = async (skip, limit) => {
+		console.log('fetching scans', skip, limit);
+		const response = await callAPI(
+			'GET',
+			`scans?skip=${skip}&limit=${limit}`
+		);
+		const json = await response.json();
+
+		return json.data?.scans || [];
+	};
 
 	return (
 		<>
@@ -34,7 +54,8 @@ export default function Scans() {
 				/>
 			}
 			<PagedTable
-				elements={scans}
+				count={count}
+				fetchElements={fetchScans}
 				headers={[
 					t('recipient'),
 					t('box'),

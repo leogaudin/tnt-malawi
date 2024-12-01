@@ -7,6 +7,18 @@ import { requireApiKey } from '../service/apiKey.js';
 
 const router = express.Router();
 
+router.get('/scans/count', async (req, res) => {
+	try {
+		requireApiKey(req, res, async (admin) => {
+			const count = await Scan.countDocuments({ adminId: admin.id, ...req.query });
+			return res.status(200).json({ success: true, data: { count } });
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(400).json({ success: false, error: error });
+	}
+});
+
 router.get('/scans', async (req, res) => {
 	try {
 		const skip = parseInt(req.query.skip);
@@ -22,9 +34,9 @@ router.get('/scans', async (req, res) => {
 
 			const scans = await Scan
 								.find(filters)
-								.sort({ time: 1 })
 								.skip(skip)
-								.limit(limit);
+								.limit(limit)
+								.sort({ time: -1 });
 
 			if (!scans.length)
 				return res.status(404).json({ success: false, error: `No scans available` });
@@ -77,16 +89,11 @@ router.get('/box/:id/scans', async (req, res) => {
 
 			const scans = await Scan
 									.find(filters)
-									.sort({ time: 1 })
 									.skip(skip)
-									.limit(limit);
+									.limit(limit)
+									.sort({ time: -1 });
 
 			return res.status(200).json({ success: true, data: { scans } });
-			// const box = await Box.findOne({ id: req.params.id });
-			// if (!box)
-			// 	return res.status(404).json({ success: false, error: `Box not found` });
-
-			// return res.status(200).json({ success: true, data: { scans: box.scans.sort((a, b) => a.time - b.time) } });
 		});
 	} catch (error) {
 		console.error(error);
@@ -157,8 +164,6 @@ router.post('/scan', async (req, res) => {
 
 		const newScan = new Scan(scan);
 		await newScan.save();
-
-		console.log(newScan)
 
 		await Box.updateOne({ id: boxId }, {
 			// $push: { scans: scan },
