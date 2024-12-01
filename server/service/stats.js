@@ -81,8 +81,8 @@ export function getProgress(box, notAfterTimestamp = Date.now()) {
 	if (box.statusChanges) {
 		let lastStatus = 'noScans';
 
-		for (const [status, timestamp] of Object.entries(box.statusChanges)) {
-			if (timestamp && timestamp <= notAfterTimestamp) {
+		for (const [status, change] of Object.entries(box.statusChanges)) {
+			if (change?.time && change.time <= notAfterTimestamp) {
 				lastStatus = status;
 			}
 		}
@@ -143,24 +143,24 @@ export function indexStatusChanges(sample) {
 
 		for (const scan of scans) {
 			if (scan.finalDestination && scan.markedAsReceived) {
-				statusChanges.validated ??= scan.time;
+				statusChanges.validated ??= { scan: scan.id, time: scan.time };
 			}
 			else if (scan.finalDestination) {
 				if (statusChanges.received) {
-					statusChanges.reachedAndReceived ??= scan.time;
+					statusChanges.reachedAndReceived ??= { scan: scan.id, time: scan.time };
 				} else {
-					statusChanges.reachedGps ??= scan.time;
+					statusChanges.reachedGps ??= { scan: scan.id, time: scan.time };
 				}
 			}
 			else if (scan.markedAsReceived) {
 				if (statusChanges.reachedGps) {
-					statusChanges.reachedAndReceived ??= scan.time;
+					statusChanges.reachedAndReceived ??= { scan: scan.id, time: scan.time };
 				} else {
-					statusChanges.received ??= scan.time;
+					statusChanges.received ??= { scan: scan.id, time: scan.time };
 				}
 			}
 			else if (Object.values(statusChanges).every(status => !status)) {
-				statusChanges.inProgress = scan.time;
+				statusChanges.inProgress = { scan: scan.id, time: scan.time };
 			}
 		}
 

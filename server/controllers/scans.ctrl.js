@@ -44,24 +44,24 @@ router.post('/scan', async (req, res) => {
 		};
 
 		if (scan.finalDestination && scan.markedAsReceived) {
-			statusChanges.validated ??= scan.time;
+			statusChanges.validated ??= { scan: scan.id, time: scan.time };
 		}
 		else if (scan.finalDestination) {
 			if (statusChanges.received) {
-				statusChanges.reachedAndReceived ??= scan.time;
+				statusChanges.reachedAndReceived ??= { scan: scan.id, time: scan.time };
 			} else {
-				statusChanges.reachedGps ??= scan.time;
+				statusChanges.reachedGps ??= { scan: scan.id, time: scan.time };
 			}
 		}
 		else if (scan.markedAsReceived) {
 			if (statusChanges.reachedGps) {
-				statusChanges.reachedAndReceived ??= scan.time;
+				statusChanges.reachedAndReceived ??= { scan: scan.id, time: scan.time };
 			} else {
-				statusChanges.received ??= scan.time;
+				statusChanges.received ??= { scan: scan.id, time: scan.time };
 			}
 		}
 		else if (Object.values(statusChanges).every(status => !status)) {
-			statusChanges.inProgress = scan.time;
+			statusChanges.inProgress = { scan: scan.id, time: scan.time };
 		}
 
 		await Box.updateOne({ id: boxId }, {

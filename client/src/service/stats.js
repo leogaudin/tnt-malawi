@@ -81,8 +81,8 @@ export function getProgress(box, notAfterTimestamp = Date.now()) {
 	if (box.statusChanges) {
 		let lastStatus = 'noScans';
 
-		for (const [status, timestamp] of Object.entries(box.statusChanges)) {
-			if (timestamp && timestamp <= notAfterTimestamp) {
+		for (const [status, change] of Object.entries(box.statusChanges)) {
+			if (change?.time && change.time <= notAfterTimestamp) {
 				lastStatus = status;
 			}
 		}
@@ -169,9 +169,10 @@ export function sampleToRepartition(sample, notAfterTimestamp = Date.now()) {
  */
 export function sampleToTimeline(sample) {
 	const allTimestamps = sample
-							.map(box => box.statusChanges)
-							.map(statusChanges => Object.values(statusChanges || {}).filter(timestamp => !!timestamp))
-							.flat();
+	.map(box => box.statusChanges)
+	.map(statusChanges => Object.values(statusChanges || {}).filter(change => !!change))
+	.flat()
+	.map(change => change.time);
 
 	const oneDay = 86400000;
 
