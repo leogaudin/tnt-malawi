@@ -18,6 +18,7 @@ import { icons } from '../service';
 import Pill from './Pill';
 import { useTranslation } from 'react-i18next';
 import Pagination from './Pagination';
+import Loading from './Loading';
 
 export default function PagedTable({
 	headers,

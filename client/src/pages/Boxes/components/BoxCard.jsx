@@ -13,21 +13,30 @@ import { useTranslation } from 'react-i18next';
 import { haversineDistance } from '../../../service/utils';
 import Pill from '../../../components/Pill';
 import { getProgress } from '../../../service/stats';
-import { progresses } from '../../../service';
+import { callAPI, fetchBoxScans, progresses } from '../../../service';
 import BoxModal from './BoxModal';
+import { useEffect, useMemo, useState } from 'react';
+import Loading from '../../../components/Loading';
 
 export default function BoxCard({
 	box,
 }) {
 	const { t } = useTranslation();
 	const { onOpen, onClose, isOpen } = useDisclosure();
+	const [scans, setScans] = useState(null);
 
-	const lastScan = box.scans.reduce((acc, curr) => {
-		if (!acc || new Date(curr.time) > new Date(acc.time)) {
-			return curr;
-		}
-		return acc;
-	}, null)
+	useEffect(() => {
+		fetchBoxScans(box.id)
+		.then(setScans);
+	}, []);
+
+	const lastScan = useMemo(() => {
+		return scans ? scans[scans.length - 1] : null;
+	}, [scans]);
+
+	if (!scans) {
+		return <Loading	/>;
+	}
 
 	const progress = box.progress || getProgress(box);
 

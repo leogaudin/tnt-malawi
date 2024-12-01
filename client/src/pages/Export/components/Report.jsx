@@ -11,11 +11,12 @@ import {
 	Text,
 	Stack,
 } from '@chakra-ui/react';
-import { icons } from '../../../service';
+import { callAPI, icons } from '../../../service';
 import { useTranslation } from 'react-i18next';
 import { getLastFinalScan, getLastMarkedAsReceivedScan, getLastValidatedScan } from '../../../service/stats';
 import { haversineDistance } from '../../../service/utils';
 import { essentialFields } from '../../../service/specific';
+import { useState } from 'react';
 
 function downloadJson(data, filename) {
 	const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
@@ -30,8 +31,29 @@ function downloadCSV(data, filename) {
 
 export default function Report({ boxes }) {
 	const { t } = useTranslation();
+	const [loading, setLoading] = useState(false);
 
-	const handleDownload = (format) => {
+	const handleDownload = async (format) => {
+		setLoading(true);
+		const response = await callAPI(
+			'POST',
+			'scans',
+			{
+				filters: {
+					boxId: { $in: boxes.map(box => box.id) }
+				}
+			}
+		);
+
+		const json = await response.json();
+
+		const allScans = json.data?.scans || [];
+
+		boxes.forEach(box => {
+			box.scans = [];
+			box.scans = allScans.filter(scan => scan.boxId === box.id);
+		});
+
 		const toExport = boxes.map(box => {
 			const lastReachedScan = getLastFinalScan(box);
 			const lastMarkedAsReceivedScan = getLastMarkedAsReceivedScan(box);
@@ -86,6 +108,8 @@ export default function Report({ boxes }) {
 				return acc;
 			}, {});
 
+			setLoading(false);
+
 			return translated;
 		});
 
@@ -106,6 +130,7 @@ export default function Report({ boxes }) {
 				size='lg'
 				paddingY='1rem'
 				height='fit-content'
+				isLoading={loading}
 			>
 				<HStack
 					width='100%'

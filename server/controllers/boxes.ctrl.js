@@ -28,7 +28,7 @@ router.get('/boxes/:adminId', async (req, res) => {
 			return res.status(404).json({ success: false, error: `Admin not found` });
 
 		if (found.publicInsights && !req.headers['x-authorization']) {
-			const boxes = await Box.find({ adminId: req.params.adminId }).skip(parseInt(req.query.skip)).limit(parseInt(req.query.limit));
+			const boxes = await Box.find({ adminId: req.params.adminId }, 'statusChanges project').skip(parseInt(req.query.skip)).limit(parseInt(req.query.limit));
 
 			if (!boxes.length)
 				return res.status(404).json({ success: false, error: `No boxes available` });
@@ -48,7 +48,7 @@ router.get('/boxes/:adminId', async (req, res) => {
 			if (admin.id !== req.params.adminId)
 				return res.status(401).json({ success: false, error: `Unauthorized` });
 
-			const boxes = await Box.find({ adminId: req.params.adminId }).skip(parseInt(req.query.skip)).limit(parseInt(req.query.limit));
+			const boxes = await Box.find({ adminId: req.params.adminId }, { scans: 0 }).skip(parseInt(req.query.skip)).limit(parseInt(req.query.limit));
 
 			if (!boxes.length)
 				return res.status(404).json({ success: false, error: `No boxes available` });

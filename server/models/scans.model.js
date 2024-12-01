@@ -5,6 +5,7 @@ const Scan = new Schema(
 	{
 		id: { type: String, required: true },
 		boxId: { type: String, required: true },
+		adminId: { type: String, required: true },
 		operatorId: { type: String, required: true },
 		time: { type: Number, required: true },
 		location: { type: Object, required: true },

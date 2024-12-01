@@ -6,12 +6,18 @@
  */
 
 /**
+ * @typedef {Object} StatusChange
+ * @property {string} scan
+ * @property {number} time
+ */
+
+/**
  * @typedef {Object} StatusChanges
- * @property {Date | null} inProgress
- * @property {Date | null} reachedGps
- * @property {Date | null} reachedAndReceived
- * @property {Date | null} received
- * @property {Date | null} validated
+ * @property {Object | null} inProgress
+ * @property {Object | null} reachedGps
+ * @property {Object | null} reachedAndReceived
+ * @property {Object | null} received
+ * @property {Object | null} validated
  */
 
 /**
@@ -32,12 +38,13 @@
  * @returns {Scan | null}
  */
 export function getLastFinalScan(box) {
+	let last = null;
 	for (const scan of box.scans) {
-		if (scan.finalDestination) {
-			return scan;
+		if (scan.finalDestination && scan.time > (last?.time || 0)) {
+			last = scan;
 		}
 	}
-	return null;
+	return last;
 }
 
 /**
@@ -48,12 +55,13 @@ export function getLastFinalScan(box) {
  * @returns {Scan | null}
  */
 export function getLastMarkedAsReceivedScan(box) {
+	let last = null;
 	for (const scan of box.scans) {
-		if (scan.markedAsReceived) {
-			return scan;
+		if (scan.markedAsReceived && scan.time > (last?.time || 0)) {
+			last = scan;
 		}
 	}
-	return null;
+	return last;
 }
 
 /**
@@ -63,12 +71,13 @@ export function getLastMarkedAsReceivedScan(box) {
  * @returns {Scan | null}
  */
 export function getLastValidatedScan(box) {
+	let last = null;
 	for (const scan of box.scans) {
-		if (scan.finalDestination && scan.markedAsReceived) {
-			return scan;
+		if (scan.finalDestination && scan.markedAsReceived && scan.time > (last?.time || 0)) {
+			last = scan;
 		}
 	}
-	return null;
+	return last;
 }
 
 /**
@@ -90,34 +99,34 @@ export function getProgress(box, notAfterTimestamp = Date.now()) {
 		return lastStatus;
 	}
 	// Legacy code
-	if (!box?.scans || box?.scans?.length === 0) {
-		return 'noScans';
-	}
+	// if (!box?.scans || box?.scans?.length === 0) {
+	// 	return 'noScans';
+	// }
 
-	const scans = box.scans.filter(scan => scan.time <= notAfterTimestamp);
-	box = { ...box, scans };
+	// const scans = box.scans.filter(scan => scan.time <= notAfterTimestamp);
+	// box = { ...box, scans };
 
-	const lastValidatedScan = getLastValidatedScan(box);
-	if (lastValidatedScan) {
-		return 'validated';
-	}
+	// const lastValidatedScan = getLastValidatedScan(box);
+	// if (lastValidatedScan) {
+	// 	return 'validated';
+	// }
 
-	const lastFinalScan = getLastFinalScan(box);
-	const lastReceivedScan = getLastMarkedAsReceivedScan(box);
+	// const lastFinalScan = getLastFinalScan(box);
+	// const lastReceivedScan = getLastMarkedAsReceivedScan(box);
 
-	if (lastFinalScan && lastReceivedScan) {
-		return 'reachedAndReceived';
-	}
+	// if (lastFinalScan && lastReceivedScan) {
+	// 	return 'reachedAndReceived';
+	// }
 
-	if (lastFinalScan) {
-		return 'reachedGps';
-	}
+	// if (lastFinalScan) {
+	// 	return 'reachedGps';
+	// }
 
-	if (lastReceivedScan) {
-		return 'received';
-	}
+	// if (lastReceivedScan) {
+	// 	return 'received';
+	// }
 
-	return 'inProgress';
+	// return 'inProgress';
 }
 
 /**

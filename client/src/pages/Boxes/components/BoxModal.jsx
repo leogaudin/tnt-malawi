@@ -17,7 +17,9 @@ import ScansMap from './ScansMap';
 import PagedTable from '../../../components/PagedTable';
 import { timeAgo } from '../../../service/utils';
 import { excludedKeys } from '../../../service/specific';
-import { callAPI } from '../../../service';
+import { callAPI, fetchBoxScans } from '../../../service';
+import { useEffect, useState } from 'react';
+import Loading from '../../../components/Loading';
 
 export default function BoxModal({
 	isOpen,
@@ -25,6 +27,12 @@ export default function BoxModal({
 	box,
 }) {
 	const { t } = useTranslation();
+	const [scans, setScans] = useState(null);
+
+	useEffect(() => {
+		fetchBoxScans(box.id)
+		.then(setScans);
+	}, []);
 
 	const handleDelete = async () => {
 		if (window.confirm(t('deletePrompt'))) {
@@ -87,7 +95,8 @@ export default function BoxModal({
 							{t('delete')}
 						</Button>
 						<Divider marginY={5} />
-						{box.scans?.length &&
+						{scans?.length
+						?
 							<Flex
 								direction='column'
 								justify={{ base: 'center', md: 'space-between' }}
@@ -96,9 +105,9 @@ export default function BoxModal({
 								borderRadius={10}
 								shadow='md'
 							>
-								<ScansMap box={box} />
+								<ScansMap box={{ ...box, scans }} />
 								<PagedTable
-									elements={box.scans}
+									elements={scans}
 									headers={[
 										t('time'),
 										t('comment'),
@@ -117,6 +126,7 @@ export default function BoxModal({
 									allowToChoosePageSize={false}
 								/>
 							</Flex>
+						: <Loading />
 						}
 					</Stack>
 				</ModalBody>

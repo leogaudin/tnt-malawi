@@ -1,25 +1,23 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import PagedTable from '../../components/PagedTable';
 import AppContext from '../../context';
 import { useTranslation } from 'react-i18next';
 import { useDisclosure } from '@chakra-ui/react';
 import BoxModal from '../Boxes/components/BoxModal';
 import { timeAgo } from '../../service/utils';
+import { fetchAllScans } from '../../service';
 
 export default function Scans() {
 	const { boxes } = useContext(AppContext);
 	const { t } = useTranslation();
 	const [selectedBox, setSelectedBox] = useState(null);
 	const { isOpen, onClose, onOpen } = useDisclosure();
+	const [scans, setScans] = useState(null);
 
-	const scans = boxes
-					.map(box => box.scans.map(scan => ({
-						...scan,
-						boxId: box.id,
-						recipient: box.school
-					})))
-					.flat()
-					.sort((a, b) => new Date(b.time) - new Date(a.time));
+	useEffect(() => {
+		fetchAllScans()
+			.then(setScans);
+	}, []);
 
 	const handleClick = (element) => {
 		setSelectedBox(element.boxId);

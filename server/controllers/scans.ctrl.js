@@ -1,9 +1,98 @@
 import Box from '../models/boxes.model.js';
+import Scan from '../models/scans.model.js';
 import express from 'express'
 import { generateId, isFinalDestination } from '../service/index.js';
 import { getProgress } from '../service/stats.js';
+import { requireApiKey } from '../service/apiKey.js';
 
-const router = express.Router()
+const router = express.Router();
+
+router.get('/scans', async (req, res) => {
+	try {
+		const skip = parseInt(req.query.skip);
+		const limit = parseInt(req.query.limit);
+		delete req.query.skip;
+		delete req.query.limit;
+
+		requireApiKey(req, res, async (admin) => {
+			const filters = {
+				adminId: admin.id,
+				...req.query,
+			};
+
+			const scans = await Scan
+								.find(filters)
+								.sort({ time: 1 })
+								.skip(skip)
+								.limit(limit);
+
+			if (!scans.length)
+				return res.status(404).json({ success: false, error: `No scans available` });
+
+			return res.status(200).json({ success: true, data: { scans } });
+		});
+	} catch (error) {
+		console.error('Error getting scans:', error);
+		return res.status(500).json({ error: 'An error occurred while getting scans' });
+	}
+});
+
+router.post('/scans', async (req, res) => {
+	try {
+		requireApiKey(req, res, async (admin) => {
+			const { filters } = req.body;
+
+			const scans = await Scan.find({ ...filters, adminId: admin.id });
+
+			return res.status(200).json({ data: { scans } });
+		});
+	} catch (error) {
+		console.error('Error getting scans:', error);
+		return res.status(500).json({ error: 'An error occurred while getting scans' });
+	}
+});
+
+router.get('/box/:id/scans', async (req, res) => {
+	try {
+		const { id } = req.params;
+
+		requireApiKey(req, res, async (admin) => {
+			const box = await Box.findOne({ id });
+
+			if (!box)
+				return res.status(404).json({ success: false, error: `Box not found` });
+
+			if (box.adminId !== admin.id)
+				return res.status(401).json({ success: false, error: `Unauthorized` });
+
+			const skip = parseInt(req.query.skip);
+			const limit = parseInt(req.query.limit);
+			delete req.query.skip;
+			delete req.query.limit;
+
+			const filters = {
+				boxId: id,
+				...req.query,
+			};
+
+			const scans = await Scan
+									.find(filters)
+									.sort({ time: 1 })
+									.skip(skip)
+									.limit(limit);
+
+			return res.status(200).json({ success: true, data: { scans } });
+			// const box = await Box.findOne({ id: req.params.id });
+			// if (!box)
+			// 	return res.status(404).json({ success: false, error: `Box not found` });
+
+			// return res.status(200).json({ success: true, data: { scans: box.scans.sort((a, b) => a.time - b.time) } });
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(400).json({ success: false, error: error });
+	}
+});
 
 router.post('/scan', async (req, res) => {
 	try {
@@ -26,6 +115,8 @@ router.post('/scan', async (req, res) => {
 		};
 
 		const scan = {
+			boxId,
+			adminId: box.adminId,
 			id: generateId(),
 			comment,
 			operatorId,
@@ -64,12 +155,17 @@ router.post('/scan', async (req, res) => {
 			statusChanges.inProgress = { scan: scan.id, time: scan.time };
 		}
 
+		const newScan = new Scan(scan);
+		await newScan.save();
+
+		console.log(newScan)
+
 		await Box.updateOne({ id: boxId }, {
-			$push: { scans: scan },
+			// $push: { scans: scan },
 			$set: { statusChanges, progress: getProgress({ statusChanges }) }
 		});
 
-		return res.status(200).json({ message: 'Scan added successfully', box });
+		return res.status(200).json({ message: 'Scan added successfully', newScan });
 	} catch (error) {
 		console.error('Error adding scan:', error);
 		return res.status(500).json({ error: 'An error occurred while adding the scan' });

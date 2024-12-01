@@ -89,6 +89,43 @@ export async function fetchAllBoxes(id, setBoxes) {
 	}
 }
 
+export async function fetchAllScans() {
+	try {
+		const BUFFER_LENGTH = 10000;
+		const scans = [];
+
+		while (true) {
+			const skip = scans.length;
+
+			const request = await callAPI('GET', `scans?skip=${skip}&limit=${BUFFER_LENGTH}`);
+
+			if (request.status !== 200 || !request.ok)
+				break;
+
+			const response = await request.json();
+
+			if (response?.data?.scans)
+				scans.push(...response?.data?.scans);
+		}
+
+		return scans;
+	} catch (err) {
+		console.error(err);
+		return null;
+	}
+}
+
+export async function fetchBoxScans(boxId) {
+	const response = await callAPI(
+		'GET',
+		`box/${boxId}/scans`
+	);
+
+	const json = await response.json();
+
+	return json.data.scans;
+}
+
 export const icons = {
 	home: IoHome,
 	box: FaBoxOpen,

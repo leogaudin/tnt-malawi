@@ -10,7 +10,7 @@ function ScansMap({
 }) {
 	const { t } = useTranslation();
 	const containerRef = useRef(null);
-	const scans = box?.scans || [];
+	const scans = box.scans || [];
 
 	if (scans.length === 0)
 		return null;
