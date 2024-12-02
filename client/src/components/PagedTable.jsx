@@ -81,9 +81,7 @@ export default function PagedTable({
 								<Th
 									key={index}
 								>
-									<HStack>
-										{header}
-									</HStack>
+									{header}
 								</Th>
 							))}
 						</Tr>

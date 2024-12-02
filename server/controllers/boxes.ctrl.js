@@ -21,6 +21,23 @@ router.delete('/box/:id', deleteOne(Box));
 router.delete('/boxes', deleteMany(Box))
 // router.get('/box/:id', getById(Box));
 // router.get('/boxes', getAll(Box));
+
+router.get('/box/:id', async (req, res) => {
+	try {
+		requireApiKey(req, res, async (admin) => {
+			const box = await Box.findOne({ id: req.params.id, adminId: admin.id });
+			if (!box)
+				return res.status(404).json({ success: false, error: `Box not found` });
+
+			return res.status(200).json({ success: true, data: { box } });
+		});
+	}
+	catch (error) {
+		console.error(error);
+		return res.status(400).json({ success: false, error: error });
+	}
+});
+
 router.get('/boxes/:adminId', async (req, res) => {
 	try {
 		const found = await Admin.findOne({ id: req.params.adminId });

@@ -31,7 +31,13 @@ export default function BoxCard({
 	}, []);
 
 	const lastScan = useMemo(() => {
-		return scans ? scans[scans.length - 1] : null;
+		let last = null;
+		for (const scan of (scans || [])) {
+			if (!last || scan.time > last.time) {
+				last = scan;
+			}
+		}
+		return last;
 	}, [scans]);
 
 	if (!scans) {

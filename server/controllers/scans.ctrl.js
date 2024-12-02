@@ -77,21 +77,11 @@ router.get('/box/:id/scans', async (req, res) => {
 			if (box.adminId !== admin.id)
 				return res.status(401).json({ success: false, error: `Unauthorized` });
 
-			const skip = parseInt(req.query.skip);
-			const limit = parseInt(req.query.limit);
-			delete req.query.skip;
-			delete req.query.limit;
-
 			const filters = {
 				boxId: id,
-				...req.query,
 			};
 
-			const scans = await Scan
-									.find(filters)
-									.skip(skip)
-									.limit(limit)
-									.sort({ time: -1 });
+			const scans = await Scan.find(filters)
 
 			return res.status(200).json({ success: true, data: { scans } });
 		});

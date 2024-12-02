@@ -1,6 +1,5 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import PagedTable from '../../components/PagedTable';
-import AppContext from '../../context';
 import { useTranslation } from 'react-i18next';
 import { useDisclosure } from '@chakra-ui/react';
 import BoxModal from '../Boxes/components/BoxModal';
@@ -8,14 +7,15 @@ import { timeAgo } from '../../service/utils';
 import { callAPI } from '../../service';
 
 export default function Scans() {
-	const { boxes } = useContext(AppContext);
 	const { t } = useTranslation();
-	const [selectedBox, setSelectedBox] = useState(null);
+	const [box, setBox] = useState(null);
 	const { isOpen, onClose, onOpen } = useDisclosure();
 	const [count, setCount] = useState(0);
 
-	const handleClick = (element) => {
-		setSelectedBox(element.boxId);
+	const handleClick = async (element) => {
+		const box = await fetchBox(element.boxId);
+		if (!box) return;
+		setBox(box);
 		onOpen();
 	}
 
@@ -34,7 +34,6 @@ export default function Scans() {
 	}, []);
 
 	const fetchScans = async (skip, limit) => {
-		console.log('fetching scans', skip, limit);
 		const response = await callAPI(
 			'GET',
 			`scans?skip=${skip}&limit=${limit}`
@@ -44,11 +43,18 @@ export default function Scans() {
 		return json.data?.scans || [];
 	};
 
+	const fetchBox = async (id) => {
+		const response = await callAPI('GET', `box/${id}`);
+		const json = await response.json();
+
+		return json.data?.box || null;
+	};
+
 	return (
 		<>
-			{selectedBox &&
+			{box &&
 				<BoxModal
-					box={boxes.find(box => box.id === selectedBox)}
+					box={box}
 					onClose={onClose}
 					isOpen={isOpen}
 				/>
