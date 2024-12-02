@@ -157,7 +157,11 @@ router.post('/scan', async (req, res) => {
 
 		await Box.updateOne({ id: boxId }, {
 			// $push: { scans: scan },
-			$set: { statusChanges, progress: getProgress({ statusChanges }) }
+			$set: {
+				statusChanges,
+				progress: getProgress({ statusChanges }),
+				lastScan: { scan: newScan.id, time: newScan.time },
+			},
 		});
 
 		return res.status(200).json({ message: 'Scan added successfully', newScan });
