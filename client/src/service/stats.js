@@ -87,17 +87,15 @@ export function getLastValidatedScan(box) {
  * @returns {Progress}
  */
 export function getProgress(box, notAfterTimestamp = Date.now()) {
+	let lastStatus = 'noScans';
 	if (box.statusChanges) {
-		let lastStatus = 'noScans';
-
 		for (const [status, change] of Object.entries(box.statusChanges)) {
 			if (change?.time && change.time <= notAfterTimestamp) {
 				lastStatus = status;
 			}
 		}
-
-		return lastStatus;
 	}
+	return lastStatus;
 	// Legacy code
 	// if (!box?.scans || box?.scans?.length === 0) {
 	// 	return 'noScans';

@@ -78,10 +78,12 @@ export default function Insights({ insights }) {
 								gap={5}
 							>
 								{Object.keys(repartition).map((key, i) => {
-									const progress = progresses.find(p => p.key === key);
+									const p = progresses.find(p => p.key === key);
+
+									if (!p) return null;
 									return (
 										<Stack
-											color={progress.color}
+											color={p?.color || palette.text}
 											align='center'
 											key={key}
 										>
@@ -92,7 +94,7 @@ export default function Insights({ insights }) {
 												size='sm'
 												fontWeight='light'
 											>
-												{t(progress.key)}
+												{t(p.key)}
 											</Heading>
 										</Stack>
 									);

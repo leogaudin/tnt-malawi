@@ -99,8 +99,8 @@ export default function BoxModal({
 							{t('delete')}
 						</Button>
 						<Divider marginY={5} />
-						{scans?.length
-						?
+						{scans
+						? scans.length &&
 							<Flex
 								direction='column'
 								justify={{ base: 'center', md: 'space-between' }}
