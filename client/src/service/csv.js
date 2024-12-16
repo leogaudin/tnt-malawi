@@ -205,11 +205,11 @@ export async function updateGPSCoordinates(file, setOutput) {
 						responses.push(res);
 						uploaded += buffer.length;
 						uploadedBytes += JSON.stringify({boxes: buffer}).length;
-						updated += res.updatedCount;
-						recalculated = res.recalculatedCount;
+						updated += res.updated;
+						recalculated = res.recalculated;
 						setOutput(prev => {
 							return [...prev,
-								`${res.updatedCount} objects updated.`,
+								`${res.updated} objects updated.`,
 							];
 						})
 						if (uploaded < numBoxes) {
