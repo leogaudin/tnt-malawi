@@ -50,8 +50,6 @@ export async function uploadDistributionList(file, setOutput) {
 			}
 		},
 		complete: () => {
-			boxes.shift();
-
 			setOutput(prev => {
 				return [...prev,
 					`Retrieved ${boxes.length} items.`,
@@ -167,8 +165,6 @@ export async function updateGPSCoordinates(file, setOutput) {
 			}
 		},
 		complete: () => {
-			boxes.shift();
-
 			if (!boxes.length) {
 				setOutput(prev => {
 					return [...prev,
