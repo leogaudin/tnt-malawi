@@ -15,7 +15,7 @@ import { callAPI, icons } from '../../../service';
 import { useTranslation } from 'react-i18next';
 import { getLastFinalScan, getLastMarkedAsReceivedScan, getLastValidatedScan } from '../../../service/stats';
 import { haversineDistance } from '../../../service/utils';
-import { essentialFields } from '../../../service/specific';
+import { reportFields } from '../../../service/specific';
 import { useState } from 'react';
 
 function downloadJson(data, filename) {
@@ -80,7 +80,7 @@ export default function Report({ boxes }) {
 				id: box.id,
 			};
 
-			essentialFields.forEach(field => {
+			reportFields.forEach(field => {
 				if (box[field]) {
 					result[field] = box[field];
 				}

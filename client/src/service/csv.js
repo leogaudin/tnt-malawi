@@ -1,7 +1,7 @@
 import Papa from 'papaparse';
 import { callAPI } from '.';
 import lzstring from 'lz-string';
-import { boxFields, essentialFields } from './specific';
+import { boxFields, gpsUpdateFields } from './specific';
 
 /**
  *
@@ -135,7 +135,7 @@ export async function updateGPSCoordinates(file, setOutput) {
 		step: (element) => {
 			try {
 				const newBox = {};
-				const fields = [...essentialFields, 'schoolLatitude', 'schoolLongitude'];
+				const fields = [...gpsUpdateFields, 'schoolLatitude', 'schoolLongitude'];
 
 				fields.forEach((field, index) => {
 					if (!element.data[index])
