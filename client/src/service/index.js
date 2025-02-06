@@ -52,6 +52,98 @@ export const callAPI = async (method, endpoint, data = null, headers = {}, signa
 	return response;
 }
 
+
+/**
+ * Fetches boxes from the API
+ *
+ * @param {Array<{field: String, value: String}>}		filters		Filters to be applied to the request
+ *
+ * @returns {Promise<Array>}			Array of boxes
+ */
+export async function fetchBoxes(filters = []) {
+	try {
+		const BUFFER_LENGTH = 10_000;
+		const boxes = [];
+
+		const response = await callAPI(
+			'POST',
+			`boxes/count`,
+			{ filters: filters.reduce((acc, { field, value }) => ({ ...acc, [field]: value }), {}) }
+		);
+		const json = await response.json();
+		const count = json.count || 0;
+
+		while (boxes.length < count) {
+			const skip = boxes.length;
+
+			const request = await callAPI(
+				'POST',
+				`boxes/query?skip=${skip}&limit=${BUFFER_LENGTH}`,
+				{ filters: filters.reduce((acc, { field, value }) => ({ ...acc, [field]: value }), {}) }
+			);
+
+			if (request.status !== 200 || !request.ok)
+				break;
+
+			const response = await request.json();
+
+			if (response.boxes)
+				boxes.push(...response.boxes);
+		}
+
+		boxes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+		return boxes;
+	} catch (err) {
+		console.error(err);
+		return null;
+	}
+}
+
+/**
+ * Fetches scans from the API
+ *
+ * @param {Object}		filters			Filters to be applied to the request
+ *
+ * @returns {Promise<Array>}			Array of scans
+ */
+export async function fetchScans(filters = {}) {
+	try {
+		const BUFFER_LENGTH = 10_000;
+		const scans = [];
+
+		const response = await callAPI(
+			'POST',
+			`scan/count`,
+			{ filters }
+		);
+		const json = await response.json();
+		const count = json.count || 0;
+
+		while (scans.length < count) {
+			const skip = scans.length;
+
+			const request = await callAPI(
+				'POST',
+				`scan/query?skip=${skip}&limit=${BUFFER_LENGTH}`,
+				{ filters }
+			);
+
+			if (request.status !== 200 || !request.ok)
+				break;
+
+			const response = await request.json();
+
+			if (response.scans)
+				scans.push(...response.scans);
+		}
+
+		return scans;
+	} catch (err) {
+		console.error(err);
+		return null;
+	}
+}
+
 /**
  * Fetches all boxes from the API
  *

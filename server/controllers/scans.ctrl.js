@@ -1,11 +1,49 @@
 import Box from '../models/boxes.model.js';
 import Scan from '../models/scans.model.js';
 import express from 'express'
-import { generateId, isFinalDestination } from '../service/index.js';
+import { generateId, isFinalDestination, getQuery } from '../service/index.js';
 import { getProgress } from '../service/stats.js';
 import { requireApiKey } from '../service/apiKey.js';
 
 const router = express.Router();
+
+/**
+ * @description	Retrieve all scans for the provided filters
+ */
+router.post('/scan/query', async (req, res) => {
+	try {
+		requireApiKey(req, res, async (admin) => {
+			const { skip, limit, filters } = getQuery(req);
+
+			const scans = await Scan
+								.find({ ...filters, adminId: admin.id })
+								.skip(skip)
+								.limit(limit)
+								// .sort({ time: -1 });
+
+			return res.status(200).json({ scans });
+		});
+	} catch (error) {
+		console.error('Error getting scans:', error);
+		return res.status(500).json({ error: 'An error occurred while getting scans' });
+	}
+});
+
+/**
+ * @description	Retrieve the count of scans for the provided filters
+ */
+router.post('/scan/count', async (req, res) => {
+	try {
+		requireApiKey(req, res, async (admin) => {
+			const { filters } = getQuery(req);
+			const count = await Scan.countDocuments({ ...filters, adminId: admin.id });
+			return res.status(200).json({ count });
+		});
+	} catch (error) {
+		console.error('Error getting scans count:', error);
+		return res.status(500).json({ error: 'An error occurred while getting scans count' });
+	}
+});
 
 router.get('/scans/count', async (req, res) => {
 	try {

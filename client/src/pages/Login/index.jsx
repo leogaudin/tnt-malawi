@@ -9,6 +9,7 @@ import {
 	Collapse,
 	Flex,
 	Image,
+	useToast,
 } from '@chakra-ui/react';
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { palette } from '../../theme';
@@ -34,6 +35,8 @@ export default function Login() {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 
+	const toast = useToast();
+
 	const handleUsernameChange = (e) => {
 		setUsername(e.target.value);
 	}
@@ -58,7 +61,15 @@ export default function Login() {
 				localStorage.setItem('user', JSON.stringify(res['user']));
 				window.location.reload();
 			})
-			.catch(e => alert(t('authError')))
+			.catch(e => {
+				toast({
+					title: t('authError'),
+					status: 'error',
+					duration: 9000,
+					isClosable: true,
+					position: 'top',
+				});
+			})
 			.finally(() => setLoading(false));
 	}
 
