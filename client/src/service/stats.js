@@ -104,14 +104,19 @@ export function getLastValidatedScan(box) {
  * @returns {Progress}
  */
 export function getProgress(box, notAfterTimestamp = Date.now()) {
-	let lastStatus = 'noScans';
-	if (box.statusChanges) {
-		for (const [status, change] of Object.entries(box.statusChanges)) {
-			if (change?.time && change.time <= notAfterTimestamp) {
-				lastStatus = status;
-			}
-		}
-	}
+    let lastStatus = 'noScans';
+    if (box.statusChanges) {
+        let lastTime = 0;
+        for (const [status, change] of Object.entries(box.statusChanges)) {
+            if (change?.time
+                && change.time <= notAfterTimestamp
+                && change.time > lastTime
+            ) {
+                lastStatus = status;
+                lastTime = change.time;
+            }
+        }
+    }
 	return lastStatus;
 	// Legacy code
 	// if (!box?.scans || box?.scans?.length === 0) {
