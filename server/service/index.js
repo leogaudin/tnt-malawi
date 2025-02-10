@@ -52,7 +52,7 @@ function haversineDistance(coord1, coord2) {
  */
 export function isFinalDestination(schoolCoords, boxCoords) {
 	const distance = haversineDistance(schoolCoords, boxCoords);
-    const toleranceInMeters = 1000;
+    const toleranceInMeters = 5_000;
 	const threshold = toleranceInMeters + (boxCoords.accuracy || 0);
 
 	return distance <= threshold;
