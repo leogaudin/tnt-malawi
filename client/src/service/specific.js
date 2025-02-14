@@ -17,7 +17,7 @@ export const API_URL =
 						?
 						'http://localhost:3000/api'
 						:
-						'https://tnt-malawi-api.vercel.app/api'
+						'https://tnt-malawi-api-git-inventory-leogaudin-s-team.vercel.app/api';
 
 
 // Fields that should be: displayed as information, or the full representation of the object
