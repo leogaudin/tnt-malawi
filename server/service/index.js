@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { boxFields } from '../models/boxes.model';
+import { boxFields } from '../models/boxes.model.js';
 
 /**
  *
