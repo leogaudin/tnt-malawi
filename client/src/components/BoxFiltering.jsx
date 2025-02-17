@@ -11,18 +11,18 @@ import {
 } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import { palette } from '../theme';
-import { getProgress } from '../service/stats';
+// import { getProgress } from '../service/stats';
 import { excludedKeys } from '../service/specific';
 
 export default function BoxFiltering({
 	boxes,
 	setFilteredBoxes,
 	setFiltersOutside = () => { }, // If you want to use the filters outside of this component
-	includeProgress = true,
+	// includeProgress = true,
 	includeSearch = true,
 }) {
 	const [filters, setLocalFilters] = useState([]);
-	const [progressFilter, setProgressFilter] = useState('any');
+	// const [progressFilter, setProgressFilter] = useState('any');
 	const [query, setQuery] = useState('');
 	const { t } = useTranslation();
 	const excludedFields = [
@@ -41,8 +41,8 @@ export default function BoxFiltering({
 		return boxes?.filter((box) => {
 			return (
 				(filters.length === 0 || filters.every((filter) => box[filter.field] === filter.value))
-				&&
-				(!includeProgress || ((box.progress || getProgress(box)) === progressFilter || progressFilter === 'any'))
+				// &&
+				// (!includeProgress || ((box.progress || getProgress(box)) === progressFilter || progressFilter === 'any'))
 				&&
 				(!includeSearch || !query || fitsQuery(box))
 			)
@@ -60,15 +60,15 @@ export default function BoxFiltering({
 		}
 
 		updateFilteredBoxes();
-	}, [boxes, filters, progressFilter, setFilteredBoxes, query]);
+	}, [boxes, filters, setFilteredBoxes, query]); // Removed progressFilter
 
 	const availableOptions = boxes?.length
-		? Object.keys(boxes[0]).filter((field) => !excludedFields.includes(field))
+		? Object.keys(boxes[0]).filter((field) => field === 'progress' || !excludedFields.includes(field))
 		: null;
 
-	const handleProgressChange = (event) => {
-		setProgressFilter(event.target.value);
-	}
+	// const handleProgressChange = (event) => {
+	// 	setProgressFilter(event.target.value);
+	// }
 
 	const addFilter = () => {
 		if (filters.every((filter) => filter.field && filter.value))
@@ -100,6 +100,9 @@ export default function BoxFiltering({
 	}
 
 	const FilterSelect = ({ filter, index }) => {
+		if (availableOptions === null)
+			return null;
+
 		return (
 			<HStack
 				bg={palette.gray.light}
@@ -116,7 +119,7 @@ export default function BoxFiltering({
 						if (filters.some((filter) => filter.field === field)) return null;
 						return (
 							<option key={field} value={field} selected={filter.field === field}>
-								{field}
+								{t(field)}
 							</option>
 						)
 					})}
@@ -131,7 +134,7 @@ export default function BoxFiltering({
 						if (isPossible(filters, filter.field, option))
 							return (
 								<option key={option} value={option}>
-									{option}
+									{t(option)}
 								</option>
 							)
 					})}
@@ -174,7 +177,7 @@ export default function BoxFiltering({
 					onClick={addFilter}
 				/>
 			</Flex>
-			{includeProgress &&
+			{/* {includeProgress &&
 				(<>
 					<Text fontWeight='bold'>{t('progress')}</Text>
 					<Select
@@ -195,7 +198,7 @@ export default function BoxFiltering({
 						})}
 					</Select>
 				</>)
-			}
+			} */}
 			<Text
 				fontSize='small'
 				fontWeight='bold'

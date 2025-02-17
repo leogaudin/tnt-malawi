@@ -24,6 +24,7 @@ export default function Export() {
 				boxes={boxes}
 				setFilteredBoxes={setFiltered}
 				setFiltersOutside={setFilters}
+				includeSearch={false}
 			/>
 			<Stack>
 				<PDFExport
