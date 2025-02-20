@@ -60,14 +60,23 @@ export function getLastScanWithConditions(scans, conditions = []) {
 export function getProgress(box, notAfterTimestamp = Date.now()) {
     let lastStatus = 'noScans';
     if (box.statusChanges) {
-        let lastTime = 0;
-        for (const [status, change] of Object.entries(box.statusChanges || {})) {
+		const orderedChanges = [
+			'inProgress',
+			'received',
+			'reachedGps',
+			'reachedAndReceived',
+			'validated',
+		];
+		const changes = orderedChanges.reduce((acc, status) => ({
+			...acc,
+			[status]: box.statusChanges[status] || null,
+		}), {});
+
+        for (const [status, change] of Object.entries(changes)) {
             if (change?.time
                 && change.time <= notAfterTimestamp
-                && change.time > lastTime
             ) {
                 lastStatus = status;
-                lastTime = change.time;
             }
         }
     }
