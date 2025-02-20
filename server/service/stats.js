@@ -89,47 +89,27 @@ export function getLastValidatedScan(box) {
 export function getProgress(box, notAfterTimestamp = Date.now()) {
     let lastStatus = 'noScans';
     if (box.statusChanges) {
-        let lastTime = 0;
-        for (const [status, change] of Object.entries(box.statusChanges)) {
+		const orderedChanges = [
+			'inProgress',
+			'received',
+			'reachedGps',
+			'reachedAndReceived',
+			'validated',
+		];
+		const changes = orderedChanges.reduce((acc, status) => ({
+			...acc,
+			[status]: box.statusChanges[status] || null,
+		}), {});
+
+        for (const [status, change] of Object.entries(changes)) {
             if (change?.time
                 && change.time <= notAfterTimestamp
-                && change.time > lastTime
             ) {
                 lastStatus = status;
-                lastTime = change.time;
             }
         }
     }
 	return lastStatus;
-	// Legacy code
-	// if (!box?.scans || box?.scans?.length === 0) {
-	// 	return 'noScans';
-	// }
-
-	// const scans = box.scans.filter(scan => scan.time <= notAfterTimestamp);
-	// box = { ...box, scans };
-
-	// const lastValidatedScan = getLastValidatedScan(box);
-	// if (lastValidatedScan) {
-	// 	return 'validated';
-	// }
-
-	// const lastFinalScan = getLastFinalScan(box);
-	// const lastReceivedScan = getLastMarkedAsReceivedScan(box);
-
-	// if (lastFinalScan && lastReceivedScan) {
-	// 	return 'reachedAndReceived';
-	// }
-
-	// if (lastFinalScan) {
-	// 	return 'reachedGps';
-	// }
-
-	// if (lastReceivedScan) {
-	// 	return 'received';
-	// }
-
-	// return 'inProgress';
 }
 
 /**
@@ -147,28 +127,30 @@ export function indexStatusChanges(sample) {
 
 		const statusChanges = {
 			inProgress: null,
+			received: null,
 			reachedGps: null,
 			reachedAndReceived: null,
-			received: null,
-			validated: null
+			validated: null,
 		};
 
 		for (const scan of scans) {
-			if (scan.finalDestination && scan.markedAsReceived) {
-				statusChanges.validated ??= { scan: scan.id, time: scan.time };
+			if (scan.finalDestination && scan.markedAsReceived && !statusChanges.validated) {
+				statusChanges.validated = { scan: scan.id, time: scan.time };
 			}
 			else if (scan.finalDestination) {
-				if (statusChanges.received) {
-					statusChanges.reachedAndReceived ??= { scan: scan.id, time: scan.time };
-				} else {
-					statusChanges.reachedGps ??= { scan: scan.id, time: scan.time };
+				if (statusChanges.received && !statusChanges.reachedAndReceived) {
+					statusChanges.reachedAndReceived = { scan: scan.id, time: scan.time };
+				}
+				else if (!statusChanges.reachedGps) {
+					statusChanges.reachedGps = { scan: scan.id, time: scan.time };
 				}
 			}
 			else if (scan.markedAsReceived) {
-				if (statusChanges.reachedGps) {
-					statusChanges.reachedAndReceived ??= { scan: scan.id, time: scan.time };
-				} else {
-					statusChanges.received ??= { scan: scan.id, time: scan.time };
+				if (statusChanges.reachedGps && !statusChanges.reachedAndReceived) {
+					statusChanges.reachedAndReceived = { scan: scan.id, time: scan.time };
+				}
+				else if (!statusChanges.received) {
+					statusChanges.received = { scan: scan.id, time: scan.time };
 				}
 			}
 			else if (Object.values(statusChanges).every(status => !status)) {
@@ -179,7 +161,7 @@ export function indexStatusChanges(sample) {
 		return {
 			updateOne: {
 				filter: { id: box.id },
-				update: { $set: { statusChanges, progress: getProgress(box) } }
+				update: { $set: { statusChanges, progress: getProgress({ statusChanges }) } }
 			}
 		}
 	});

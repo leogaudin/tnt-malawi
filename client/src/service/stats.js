@@ -106,47 +106,27 @@ export function getLastValidatedScan(box) {
 export function getProgress(box, notAfterTimestamp = Date.now()) {
     let lastStatus = 'noScans';
     if (box.statusChanges) {
-        let lastTime = 0;
-        for (const [status, change] of Object.entries(box.statusChanges)) {
+		const orderedChanges = [
+			'inProgress',
+			'received',
+			'reachedGps',
+			'reachedAndReceived',
+			'validated',
+		];
+		const changes = orderedChanges.reduce((acc, status) => ({
+			...acc,
+			[status]: box.statusChanges[status] || null,
+		}), {});
+
+        for (const [status, change] of Object.entries(changes)) {
             if (change?.time
                 && change.time <= notAfterTimestamp
-                && change.time > lastTime
             ) {
                 lastStatus = status;
-                lastTime = change.time;
             }
         }
     }
 	return lastStatus;
-	// Legacy code
-	// if (!box?.scans || box?.scans?.length === 0) {
-	// 	return 'noScans';
-	// }
-
-	// const scans = box.scans.filter(scan => scan.time <= notAfterTimestamp);
-	// box = { ...box, scans };
-
-	// const lastValidatedScan = getLastValidatedScan(box);
-	// if (lastValidatedScan) {
-	// 	return 'validated';
-	// }
-
-	// const lastFinalScan = getLastFinalScan(box);
-	// const lastReceivedScan = getLastMarkedAsReceivedScan(box);
-
-	// if (lastFinalScan && lastReceivedScan) {
-	// 	return 'reachedAndReceived';
-	// }
-
-	// if (lastFinalScan) {
-	// 	return 'reachedGps';
-	// }
-
-	// if (lastReceivedScan) {
-	// 	return 'received';
-	// }
-
-	// return 'inProgress';
 }
 
 /**
