@@ -58,7 +58,7 @@ export default function SendScanModal({ modalVisible, setModalVisible, data }) {
 					}
 				},
 				{
-					enableHighAccuracy: true,
+					enableHighAccuracy: false,
 					timeout: 10000,
 					maximumAge: 10000,
 				},
