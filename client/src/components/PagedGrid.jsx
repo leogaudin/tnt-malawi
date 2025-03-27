@@ -1,14 +1,9 @@
 import {
-	Button,
 	SimpleGrid,
 	Stack,
-	Text,
 	Flex,
-	Select,
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { palette } from '../theme';
 import Pagination from './Pagination';
 import Loading from './Loading';
 

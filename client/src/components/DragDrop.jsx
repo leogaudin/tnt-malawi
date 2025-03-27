@@ -7,7 +7,6 @@ export default function DragDrop({
 	height = 400,
 	accept = ['.csv'],
 	children,
-	...props
 }) {
 	const [hover, setHover] = useState(false);
 	const inputFile = useRef(null);

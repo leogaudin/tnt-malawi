@@ -43,7 +43,7 @@ export default function SchoolModal({
 								size='md'
 								width='100%'
 								textAlign='center'
-								fontWeight='normal'
+								marginTop='1rem'
 							>
 								{project}
 							</Heading>
@@ -115,9 +115,8 @@ export default function SchoolModal({
 									>
 										<Heading
 											size='md'
-											marginTop='.5rem'
 											textAlign='center'
-											fontWeight='normal'
+											marginTop='1rem'
 										>
 											{project}
 										</Heading>

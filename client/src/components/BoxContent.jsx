@@ -1,9 +1,9 @@
 import {
 	Heading,
 	Stack,
-} from "@chakra-ui/react";
-import { useTranslation } from "react-i18next";
-import { palette } from "../theme";
+} from '@chakra-ui/react';
+import { useTranslation } from 'react-i18next';
+import { palette } from '../theme';
 
 export default function BoxContent({
 	content,

@@ -35,6 +35,23 @@
  */
 
 /**
+ * Returns the last scan that meets the conditions.
+ * Returns null if none found.
+ * @param {Box} box
+ * @param {Array<string>} conditions
+ * @returns {Scan | null}
+ */
+export function getLastScanWithConditions(scans, conditions = []) {
+	let last = null;
+	for (const scan of (scans || [])) {
+		if (scan.time > (last?.time || 0) && conditions.every(condition => scan[condition])) {
+			last = scan;
+		}
+	}
+	return last;
+}
+
+/**
  * Returns the progress of the box.
  *
  * @param {Box} box

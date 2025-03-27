@@ -109,6 +109,25 @@ function sampleToRepartition(sample, notAfterTimestamp = Date.now()) {
 	return repartition;
 }
 
+function getMinMax(arr) {
+	if (!arr || !Array.isArray(arr)) {
+		throw new Error('Invalid array');
+	}
+    let max = -Number.MAX_VALUE;
+    let min = Number.MAX_VALUE;
+
+	for (const e of arr) {
+		if (e > max) {
+			max = e;
+		}
+		if (e < min) {
+			min = e;
+		}
+	}
+
+    return { min, max };
+}
+
 /**
  * Returns the timeline of a sample.
  *
@@ -124,9 +143,11 @@ function sampleToTimeline(sample) {
 
 	const oneDay = 86400000;
 
-	const final = Math.max(...allTimestamps) + oneDay;
+	const { min: minTimestamp, max: maxTimestamp } = getMinMax(allTimestamps);
+
+	const final = maxTimestamp + oneDay;
 	const initial = Math.max(
-		Math.min(...allTimestamps),
+		minTimestamp,
 		final - (365 * oneDay / 2)
 	) - oneDay;
 
@@ -170,11 +191,23 @@ export function sampleToContent(sample) {
  * Computes the insights for a sample of boxes.
  *
  * @param {Array<Box>}	sample
+ * @param {boolean}		[grouped=true]	Whether to group the insights by project
  * @param {Function}	setInsights	The function to set the insights
  */
-export function computeInsights(boxes) {
+export function computeInsights(boxes, options = {}) {
+	const { grouped = true, only = null } = options;
+
 	if (!boxes || boxes.length === 0) {
 		return {};
+	}
+
+	if (!grouped) {
+		const filtered = only ? boxes.filter(box => only.includes(box.project)) : boxes;
+		return {
+			timeline: sampleToTimeline(filtered),
+			repartition: sampleToRepartition(filtered),
+			content: sampleToContent(filtered)
+		};
 	}
 
 	const projects = [...new Set(boxes.map(box => box.project))];
@@ -182,6 +215,10 @@ export function computeInsights(boxes) {
 	const insights = {};
 
 	for (const project of projects) {
+		if (only && !only.includes(project)) {
+			continue;
+		}
+
 		const sample = boxes.filter((box) => box.project === project);
 
 		insights[project] = {

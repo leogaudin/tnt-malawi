@@ -5,19 +5,24 @@ import { useContext } from 'react';
 import AppContext from '../../context';
 import { useTranslation } from 'react-i18next';
 import BigLoading from '../../components/BoxesLoading';
+import { user } from '../../service';
 
 export default function Home() {
-	const { insights } = useContext(AppContext);
+	const { rawInsights } = useContext(AppContext);
 	const { t } = useTranslation();
 
-	if (!insights)
+	if (!rawInsights)
 		return <BigLoading message={t('insightsLoading')} />
+
 	return (
 		<Stack
 			width='100%'
 		>
 			<InsightsController />
-			<Insights insights={insights} />
+			<Insights
+				rawInsights={rawInsights}
+				id={user.id}
+			/>
 		</Stack>
 	);
 }

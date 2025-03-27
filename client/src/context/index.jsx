@@ -2,16 +2,14 @@ import React, { createContext, useEffect, useState } from 'react';
 import { callAPI, fetchInsights, user } from '../service';
 
 const AppContext = createContext({
-	insights: [],
+	rawInsights: [],
 	language: 'en',
 	setLanguage: () => { },
-	loading: true,
 });
 
 export const AppProvider = ({ children }) => {
 	const [language, setLanguage] = useState('en');
-	const [loading, setLoading] = useState(true);
-	const [insights, setInsights] = useState(null);
+	const [rawInsights, setRawInsights] = useState(null);
 
 	const initTnT = async () => {
 		const res = await callAPI('GET', 'auth/me')
@@ -20,8 +18,8 @@ export const AppProvider = ({ children }) => {
 		localStorage.setItem('user', JSON.stringify(me));
 		Object.assign(user, me);
 
-		const insights = await fetchInsights(user.id);
-		return { insights };
+		const rawInsights = await fetchInsights({ adminId: user.id });
+		return { rawInsights };
 	}
 
 	useEffect(() => {
@@ -29,8 +27,7 @@ export const AppProvider = ({ children }) => {
 
 		initTnT()
 			.then((data) => {
-				setInsights(data.insights);
-				setLoading(false);
+				setRawInsights(data.rawInsights);
 			})
 			.catch((e) => {
 				console.error(e);
@@ -40,10 +37,9 @@ export const AppProvider = ({ children }) => {
 	return (
 		<AppContext.Provider
 			value={{
-				insights,
+				rawInsights,
 				language,
 				setLanguage,
-				loading,
 			}}
 		>
 			{children}

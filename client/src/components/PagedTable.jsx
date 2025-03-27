@@ -7,13 +7,8 @@ import {
 	Td,
 	TableContainer,
 	Stack,
-	HStack,
-	Flex,
-	Select,
-	Text,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { palette } from '../theme';
 import { icons } from '../service';
 import Pill from './Pill';
 import { useTranslation } from 'react-i18next';
@@ -28,7 +23,6 @@ export default function PagedTable({
 	transforms,
 	onRowClick,
 	allowToChoosePageSize = true,
-	...props
 }) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(50);

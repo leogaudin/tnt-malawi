@@ -1,4 +1,4 @@
-import { Flex, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Text } from '@chakra-ui/react';
+import { Flex, Modal, ModalBody, ModalContent, ModalOverlay } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { palette } from '../../../theme';

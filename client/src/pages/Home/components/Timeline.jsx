@@ -69,13 +69,18 @@ export default function Timeline({
 					<XAxis dataKey='name' />
 					<YAxis />
 					<Tooltip content={renderTooltipContent} />
-					{progresses.toReversed().map((progress, i) => {
+					{Object.keys(progresses).toReversed().map((key, i) => {
+						const progress = progresses[key];
+
+						if (!progress)
+							return;
+
 						if (progress.inTimeline) {
 							return (
 								<Area
 									key={i}
 									type='monotone'
-									dataKey={progress.key}
+									dataKey={key}
 									stackId='1'
 									stroke={progress.color}
 									fill={progress.color}

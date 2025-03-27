@@ -1,16 +1,13 @@
 import { Flex } from '@chakra-ui/react';
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { navbarWidth, user } from '../service';
-import AppContext from '../context';
 import Navbar from './Navbar';
-import NothingToSee from './NothingToSee';
 import { Helmet } from 'react-helmet-async';
 import { name } from '../service/specific';
 
 export default function RouteWrapper({ route }) {
 	const navigate = useNavigate();
-	const { loading, boxes } = useContext(AppContext);
 
 	useEffect(() => {
 		if (!route.public && !user) {

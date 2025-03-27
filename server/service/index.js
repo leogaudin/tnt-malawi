@@ -25,7 +25,7 @@ export function generateId() {
  * @param {{ latitude: number, longitude: number }}	coord2	2nd set of coordinates
  * @returns {number}	Distance between the two coordinates, in meters
  */
-function haversineDistance(coord1, coord2) {
+export function haversineDistance(coord1, coord2) {
 	const earthRadiusInMeters = 6378137;
 	const { latitude: lat1, longitude: lon1 } = coord1;
 	const { latitude: lat2, longitude: lon2 } = coord2;

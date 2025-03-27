@@ -11,7 +11,7 @@ import {
 	Image,
 	useToast,
 } from '@chakra-ui/react';
-import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa';
 import { palette } from '../../theme';
 import { callAPI, user } from '../../service';
 import { useNavigate } from 'react-router-dom';

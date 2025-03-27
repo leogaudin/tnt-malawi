@@ -135,6 +135,8 @@ i18n
 					generatingPdf: 'Generating PDF...',
 					scansLoading: 'Loading scans...',
 					noContent: 'No content',
+					apply: 'Apply',
+					globalInsights: 'Global insights',
 				},
 			},
 			fr: {
@@ -257,6 +259,8 @@ i18n
 					generatingPdf: 'Génération du PDF...',
 					scansLoading: 'Chargement des scans...',
 					noContent: 'Pas de contenu',
+					apply: 'Appliquer',
+					globalInsights: 'Statistiques globales',
 				},
 			},
 		},

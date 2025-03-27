@@ -13,8 +13,8 @@ import {
 	Select,
 } from '@chakra-ui/react';
 import { palette } from '../theme';
-import { RxHamburgerMenu } from "react-icons/rx";
-import { IoIosClose } from "react-icons/io";
+import { RxHamburgerMenu } from 'react-icons/rx';
+import { IoIosClose } from 'react-icons/io';
 import { getRoutes, icons, navbarWidth, user } from '../service';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

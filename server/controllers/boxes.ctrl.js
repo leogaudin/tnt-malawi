@@ -100,17 +100,28 @@ router.post('/query', async (req, res) => {
  */
 router.post('/distinct/:field', async (req, res) => {
 	try {
-		requireApiKey(req, res, async (admin) => {
-			const { filters } = getQuery(req);
+		const { filters } = getQuery(req);
+		if (!filters.adminId)
+			return res.status(400).json({ error: 'Admin ID required' });
 
+		const admin = await Admin.findOne({ id: filters.adminId });
+		if (!admin)
+			return res.status(404).json({ error: `Admin not found` });
+
+		if (admin.publicInsights || req.headers['x-authorization'] === admin.apiKey) {
 			const field = req.params.field;
+			if (!field)
+				return res.status(400).json({ error: 'Field required' });
+
 			const distinct = await Box
 									.distinct(
 										field,
-										{ ...filters, adminId: admin.id }
+										{ ...filters }
 									);
 			return res.status(200).json({ distinct });
-		});
+		} else {
+			return res.status(401).json({ error: `Unauthorized` });
+		}
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ error });
@@ -122,11 +133,20 @@ router.post('/distinct/:field', async (req, res) => {
  */
 router.post('/count', async (req, res) => {
 	try {
-		requireApiKey(req, res, async (admin) => {
-			const { filters } = getQuery(req);
-			const count = await Box.countDocuments({ ...filters, adminId: admin.id });
+		const { filters } = getQuery(req);
+		if (!filters.adminId)
+			return res.status(400).json({ error: 'Admin ID required' });
+
+		const admin = await Admin.findOne({ id: filters.adminId });
+		if (!admin)
+			return res.status(404).json({ error: `Admin not found` });
+
+		if (admin.publicInsights || req.headers['x-authorization'] === admin.apiKey) {
+			const count = await Box.countDocuments({ ...filters });
 			return res.status(200).json({ count });
-		});
+		} else {
+			return res.status(401).json({ error: `Unauthorized` });
+		}
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({ error });

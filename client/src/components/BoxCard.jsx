@@ -12,10 +12,10 @@ import { palette } from '../theme';
 import { useTranslation } from 'react-i18next';
 import { haversineDistance } from '../service/utils';
 import Pill from './Pill';
-import { getLastScanWithConditions, getProgress } from '../service/stats';
-import { callAPI, fetchBoxScans, progresses } from '../service';
+import { getProgress } from '../service/stats';
+import { callAPI, progresses } from '../service';
 import BoxModal from './BoxModal';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Loading from '../components/Loading';
 
 export default function BoxCard({
@@ -55,9 +55,9 @@ export default function BoxCard({
 		return <Loading	/>;
 	}
 
-	const progress = box.progress || getProgress(box);
+	const progressKey = box.progress || getProgress(box);
 
-	const progressMeta = progresses.find((p) => p.key === progress);
+	const progress = progresses[progressKey];
 
 	const lastSeen = lastScan
 						? Math.round(haversineDistance(
@@ -136,14 +136,14 @@ export default function BoxCard({
 							>
 								<Pill
 									variant='solid'
-									text={t(progress)}
-									color={progressMeta.color}
-									icon={<progressMeta.icon />}
+									text={t(progressKey)}
+									color={progress.color}
+									icon={<progress.icon />}
 								/>
 								{lastScan &&
 									(
 										<Text
-											color={progressMeta.color}
+											color={progress.color}
 											opacity={.8}
 											textAlign='center'
 										>

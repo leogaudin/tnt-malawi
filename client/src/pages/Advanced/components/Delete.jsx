@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { deleteBoxes } from '../../../service';
 
 export default function Delete() {
-	const [filters, setFilters] = useState([]);
+	const [filters, setFilters] = useState({});
 	const [count, setCount] = useState(0);
 	const { t } = useTranslation();
 

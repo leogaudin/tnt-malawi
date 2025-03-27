@@ -28,7 +28,10 @@ export default function Repartition({
 				gap={5}
 			>
 				{Object.keys(repartition).map((key, i) => {
-					const progress = progresses.find(p => p.key === key);
+					const progress = progresses[key];
+					if (!progress)
+						return;
+
 					return (
 						<Stack
 							color={progress.color}
@@ -42,7 +45,7 @@ export default function Repartition({
 								size='sm'
 								fontWeight='light'
 							>
-								{t(progress.key)}
+								{t(key)}
 							</Heading>
 						</Stack>
 					);

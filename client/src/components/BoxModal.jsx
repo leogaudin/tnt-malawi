@@ -19,7 +19,7 @@ import PagedTable from './PagedTable';
 import { timeAgo } from '../service/utils';
 import { excludedKeys } from '../service/specific';
 import SchoolModal from './SchoolModal';
-import { callAPI, icons, user, fetchBoxScans, deleteBoxes } from '../service';
+import { callAPI, icons, fetchBoxScans, deleteBoxes } from '../service';
 import { useEffect, useState } from 'react';
 import Loading from './Loading';
 import BoxContent from './BoxContent';
