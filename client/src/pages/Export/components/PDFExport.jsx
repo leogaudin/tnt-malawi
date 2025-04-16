@@ -137,14 +137,19 @@ const PDFExport = ({ objects, folderName = 'Documents' }) => {
 
 	const downloadDocuments = async () => {
 		setLoading(true);
-		const sortedObjects = objects.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+		if (objects.some(object => object.packingListId === undefined)) {
+			objects.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+		}
+		else {
+			objects.sort((a, b) => a.packingListId - b.packingListId);
+		}
 		const zip = new JSZip();
 		let chunkIndex = 0;
 		const CHUNK_SIZE = 500;
-		const totalLength = sortedObjects.length;
+		const totalLength = objects.length;
 
 		for (let i = 0; i < totalLength; i += CHUNK_SIZE) {
-			const chunk = sortedObjects.slice(i, i + CHUNK_SIZE);
+			const chunk = objects.slice(i, i + CHUNK_SIZE);
 			const pages = await renderPages(chunk, i, totalLength);
 			const blob = await pdf(<Document>{pages}</Document>).toBlob();
 			zip.file(`${folderName}_${chunkIndex}.pdf`, blob, { binary: true });
@@ -152,7 +157,7 @@ const PDFExport = ({ objects, folderName = 'Documents' }) => {
 			chunkIndex++;
 		}
 
-		zip.generateAsync({ type: 'blob' }).then(function (content) {
+		zip.generateAsync({ type: 'blob' }).then((content) => {
 			saveAs(content, `${folderName}.zip`);
 			setLoading(false);
 			setPagesComplete(0);

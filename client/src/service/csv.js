@@ -64,6 +64,9 @@ export async function uploadDistributionList(file, setOutput) {
 			const responses = [];
 
 			const processBuffer = (buffer) => {
+				buffer.forEach((box, i) => {
+					box.packingListId = uploaded + i;
+				});
 				const payload = {
 					data: lzstring.compressToEncodedURIComponent(JSON.stringify(buffer)),
 				};

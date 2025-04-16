@@ -71,4 +71,5 @@ export const excludedKeys = [
 	'progress',
 	'content',
 	'lastScan',
+	'packingListId',
 ];
