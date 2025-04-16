@@ -74,13 +74,14 @@ router.post('/query', async (req, res) => {
 			if (!found)
 				return res.status(404).json({ error: `Admin not found` });
 
-			const { skip, limit, filters } = getQuery(req);
+			const { skip, limit, filters, sort } = getQuery(req);
 
 			const boxes = await Box
 				.find(
 					{ ...filters, adminId: admin.id },
 					{ scans: 0 },
 				)
+				.sort(sort)
 				.skip(skip)
 				.limit(limit);
 

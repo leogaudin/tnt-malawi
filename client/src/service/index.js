@@ -62,7 +62,7 @@ export const callAPI = async (method, endpoint, data = null, headers = {}, signa
  *
  * @returns {Promise<Array>}			Array of boxes
  */
-export async function fetchBoxes(filters = {}) {
+export async function fetchBoxes(filters = {}, sort = {}) {
 	try {
 		const BUFFER_LENGTH = 10_000;
 		const boxes = [];
@@ -70,7 +70,9 @@ export async function fetchBoxes(filters = {}) {
 		const response = await callAPI(
 			'POST',
 			`boxes/count`,
-			{ filters: { ...filters, adminId: user.id } }
+			{
+				filters: { ...filters, adminId: user.id }
+			}
 		);
 		const json = await response.json();
 		const count = json.count || 0;
@@ -81,7 +83,7 @@ export async function fetchBoxes(filters = {}) {
 			const request = await callAPI(
 				'POST',
 				`boxes/query?skip=${skip}&limit=${BUFFER_LENGTH}`,
-				{ filters }
+				{ filters, sort }
 			);
 
 			if (request.status !== 200 || !request.ok)
@@ -93,7 +95,6 @@ export async function fetchBoxes(filters = {}) {
 				boxes.push(...response.boxes);
 		}
 
-		boxes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 		return boxes;
 	} catch (err) {
 		console.error(err);

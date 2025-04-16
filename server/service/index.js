@@ -71,6 +71,7 @@ export function getQuery(req) {
 	delete req.query.limit;
 
 	const filters = req.body.filters || {};
+	const sort = req.body.sort || {};
 
 	const custom = filters.custom;
 	delete filters.custom;
@@ -83,5 +84,5 @@ export function getQuery(req) {
 		];
 	}
 
-	return { skip, limit, filters };
+	return { skip, limit, filters, sort };
 }

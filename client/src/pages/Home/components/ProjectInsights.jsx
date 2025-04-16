@@ -8,14 +8,15 @@ import { useTranslation } from 'react-i18next';
 import Timeline from './Timeline';
 import Repartition from './Repartition';
 import ContentDelivered from '../../../components/ContentDelivered';
+import NothingToSee from '../../../components/NothingToSee';
 
 export default function ProjectInsights({
     insights,
     project,
     menu,
 }) {
-    if (!insights)
-        return null;
+    if (!insights || !insights.timeline || !insights.repartition)
+        return <NothingToSee />;
 
     const { timeline, repartition } = insights;
     const progress = (repartition.validated / repartition.total) * 100;

@@ -157,7 +157,7 @@ const PDFExport = ({ filters, folderName = 'Documents' }) => {
 		try {
 			setLoading(true);
 			setLoadingText(t('boxesLoading'));
-			const boxes = await fetchBoxes(filters);
+			const boxes = await fetchBoxes(filters, { packingListId: 1 });
 			if (!boxes || !boxes.length) {
 				throw new Error('No boxes available');
 			}
