@@ -9,6 +9,7 @@ const Admin = new Schema(
 		apiKey: { type: String, required: true },
 		createdAt: { type: Date, required: true },
 		publicInsights: { type: Boolean, required: true },
+		projectEmails: { type: Object, required: false },
 	}
 )
 

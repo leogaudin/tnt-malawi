@@ -4,6 +4,9 @@ import Box from '../models/boxes.model.js';
 import Scan from '../models/scans.model.js';
 import { getQuery, haversineDistance } from '../service/index.js';
 import { getLastScanWithConditions } from '../service/stats.js';
+import fs from 'fs';
+import path from 'path';
+import { requireApiKey } from '../service/apiKey.js';
 
 const router = express.Router();
 
@@ -66,6 +69,9 @@ router.post('/', async (req, res) => {
 	}
 });
 
+/**
+ * @description	Retrieve a partial or full report of the current admin's boxes
+ */
 router.post('/report', async (req, res) => {
 	try {
 		const reportFields = [
@@ -178,6 +184,66 @@ router.post('/report', async (req, res) => {
 			return res.status(401).json({ error: `Unauthorized` });
 		}
 	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: error });
+	}
+});
+
+/**
+ * @description	Retrieve the emails associated with each project,
+ * (i.e. the emails to send a report to)
+ */
+router.get('/emails', async (req, res) => {
+	try {
+		const adminId = req.query.adminId;
+		if (!adminId)
+			return res.status(400).json({ error: 'Admin ID required' });
+
+		const admin = await Admin.findOne({ id: adminId });
+		if (!admin)
+			return res.status(404).json({ error: `Admin not found` });
+
+		if (admin.publicInsights || req.headers['x-authorization'] === admin.apiKey) {
+			const emails = admin.projectEmails || {};
+			return res.status(200).json({ emails });
+		}
+	}
+	catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: error });
+	}
+})
+
+/**
+ * @description	Updates the emails associated with each project
+ */
+router.post('/emails', async (req, res) => {
+	try {
+		requireApiKey(req, res, async (admin) => {
+			admin.projectEmails = req.body.emails;
+			await admin.save();
+
+			// Write the admin ID to a file on the server
+			// ONLY UNCOMMENT THIS IF SERVER IS SETUP ACCORDINGLY
+			//
+			// const folder = path.join('/Users/leogaudin/Downloads/');
+			// if (!fs.existsSync(folder)) {
+			// 	fs.mkdirSync(folder, { recursive: true });
+			// }
+			// const filePath = path.join(folder, 'daily_report_emails.txt');
+			// if (!fs.existsSync(filePath)) {
+			// 	fs.writeFileSync(filePath, '', 'utf8');
+			// }
+			// const content = fs.readFileSync(filePath, 'utf8');
+			// const emails = content.split(',').map(email => email.trim()).filter(email => email !== '');
+			// emails.push(admin.id);
+			// const uniqueEmails = [...new Set(emails)];
+			// const newContent = uniqueEmails.join(',');
+			// fs.writeFileSync(filePath, newContent, 'utf8');
+			return res.status(200).json({ message: 'Emails updated successfully' });
+		});
+	}
+	catch (error) {
 		console.error(error);
 		return res.status(500).json({ error: error });
 	}
