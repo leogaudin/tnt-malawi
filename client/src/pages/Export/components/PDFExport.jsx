@@ -137,12 +137,7 @@ const PDFExport = ({ objects, folderName = 'Documents' }) => {
 
 	const downloadDocuments = async () => {
 		setLoading(true);
-		if (objects.some(object => object.packingListId === undefined)) {
-			objects.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-		}
-		else {
-			objects.sort((a, b) => a.packingListId - b.packingListId);
-		}
+		objects.sort((a, b) => a.packingListId - b.packingListId);
 		const zip = new JSZip();
 		let chunkIndex = 0;
 		const CHUNK_SIZE = 500;
