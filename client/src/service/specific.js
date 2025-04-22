@@ -45,16 +45,6 @@ export const gpsUpdateFields = [
 	'schoolCode',
 ]
 
-// Fields that characterize a school in the Delivery report
-// Used in:
-// - Report.jsx
-export const reportFields = [
-	'division',
-	'district',
-	'zone',
-	'school',
-]
-
 // Keys that should not be available to the user (e.g. when filtering)
 // Used in:
 // - BoxFiltering.jsx
