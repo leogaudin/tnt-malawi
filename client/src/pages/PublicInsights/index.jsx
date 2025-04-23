@@ -6,6 +6,7 @@ import BigLoading from '../../components/BoxesLoading';
 import ProjectInsights from '../Home/components/ProjectInsights';
 import { computeInsights } from '../../service/stats';
 import NothingToSee from '../../components/NothingToSee';
+import { Stack } from '@chakra-ui/react';
 
 export default function PublicInsights() {
 	const { id } = useParams();
@@ -42,7 +43,9 @@ export default function PublicInsights() {
 	}
 
 	return (
-		<>
+		<Stack
+			width='100%'
+		>
 			{projectInsights &&
 				<ProjectInsights
 					insights={computeInsights(projectInsights, { grouped: false })}
@@ -57,6 +60,6 @@ export default function PublicInsights() {
 					id={id}
 				/>
 			}
-		</>
+		</Stack>
 	);
 }
