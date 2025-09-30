@@ -184,7 +184,7 @@ export async function updateGPSCoordinates(file, setOutput) {
 				];
 			});
 
-			const BUFFER_LENGTH = 75;
+			const BUFFER_LENGTH = 10;
 			const numBoxes = boxes.length;
 			let uploaded = 0;
 			let uploadedBytes = 0;
@@ -193,7 +193,7 @@ export async function updateGPSCoordinates(file, setOutput) {
 			const responses = [];
 
 			const processBuffer = (buffer) => {
-				callAPI('POST', 'boxes/coords', { boxes: buffer })
+				callAPI('POST', 'boxes/coords', { coords: buffer })
 					.then((res) => {
 						if (res.status >= 400)
 							throw new Error(res.statusText);

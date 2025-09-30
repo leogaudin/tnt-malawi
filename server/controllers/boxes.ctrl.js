@@ -1,6 +1,7 @@
 import express from 'express';
 import Admin from '../models/admins.model.js';
 import Box from '../models/boxes.model.js';
+import Scan from '../models/scans.model.js';
 import {
 	createOne,
 	createMany,
@@ -127,10 +128,9 @@ router.get('/boxes/:adminId', async (req, res) => {
 
 router.post('/boxes/coords', async (req, res) => {
 	try {
-		const { boxes } = req.body;
-
 		requireApiKey(req, res, async (admin) => {
-			const boxUpdate = boxes.map((box) => {
+			const { coords } = req.body;
+			const coordsUpdate = coords.map((box) => {
 				return {
 					updateMany: {
 						filter: { schoolCode: box.schoolCode, adminId: admin.id },
@@ -140,56 +140,145 @@ router.post('/boxes/coords', async (req, res) => {
 				};
 			});
 
-			const boxUpdateResult = await Box.bulkWrite(boxUpdate);
-			const updated = boxUpdateResult.modifiedCount;
-			const matched = boxUpdateResult.matchedCount;
+			const coordsUpdateResult = await Box.bulkWrite(coordsUpdate);
+			const updated = coordsUpdateResult.modifiedCount;
+			const matched = coordsUpdateResult.matchedCount;
 
 			if (updated === 0)
-				return res.status(200).json({ success: true, updated, matched, recalculated: 0 });
+				return res.status(200).json({ updated, matched, recalculated: 0 });
 
-			// const boxesToUpdate = await Box.find({
-			// 	adminId: admin.id,
-			// 	$or: boxes.map((box) => ({ schoolCode: box.schoolCode })),
-			// });
+			const boxes = await Box
+				.find(
+					{
+						adminId: admin.id,
+						$or: coords.map((box) => ({ school: box.school, district: box.district }))
+					},
+					{ schoolLatitude: 1, schoolLongitude: 1, id: 1, _id: 0 }
+				);
 
-			// const scansUpdate = boxesToUpdate
-			// 	.filter((box) => {
-			// 		const boxFromRequest = boxes.find((b) => b.schoolCode === box.schoolCode);
-			// 		return boxFromRequest.schoolLatitude !== box.schoolLatitude || boxFromRequest.schoolLongitude !== box.schoolLongitude;
-			// 	})
-			// 	.map((box) => {
-			// 		const newScans = box.scans.map((scan) => {
-			// 			const schoolCoords = {
-			// 				latitude: boxFromRequest.schoolLatitude,
-			// 				longitude: boxFromRequest.schoolLongitude,
-			// 			};
-			// 			const scanCoords = {
-			// 				latitude: scan.location.coords.latitude,
-			// 				longitude: scan.location.coords.longitude,
-			// 			};
-			// 			scan.finalDestination = isFinalDestination(schoolCoords, scanCoords);
-			// 			return scan;
-			// 		});
+			const scans = await Scan.find({ boxId: { $in: boxes.map((box) => box.id) } });
 
-			// 		if (newScans.some((scan, index) => scan.finalDestination !== box.scans[index].finalDestination)) {
-			// 			return {
-			// 				updateOne: {
-			// 					filter: { id: box.id },
-			// 					update: { $set: { scans: box.scans } },
-			// 				},
-			// 			};
-			// 		}
-			// 	});
+			const scansUpdate = [];
 
-			// const scansUpdateResult = await Box.bulkWrite(scansUpdate);
-			// const recalculated = scansUpdateResult.modifiedCount;
-			const recalculated = 0;
+			scans.forEach((scan) => {
+				const box = boxes.find((box) => box.id === scan.boxId);
+				if (!box) return;
+				const schoolCoords = {
+					latitude: box.schoolLatitude,
+					longitude: box.schoolLongitude,
+				};
+				const scanCoords = {
+					latitude: scan.location.coords.latitude,
+					longitude: scan.location.coords.longitude,
+				};
+				const newFinalDestination = isFinalDestination(schoolCoords, scanCoords);
 
-			return res.status(200).json({ success: true, updated, matched, recalculated });
+				if (newFinalDestination !== scan.finalDestination) {
+					scan.finalDestination = newFinalDestination;
+					scansUpdate.push({
+						updateOne: {
+							filter: { id: scan.id },
+							update: { $set: { finalDestination: scan.finalDestination } },
+						},
+					});
+				}
+			});
+
+			const scansUpdateResponse = await Scan.bulkWrite(scansUpdate);
+			const recalculated = scansUpdateResponse.modifiedCount;
+
+			boxes.forEach((box) => {
+				const newScans = scans.filter((scan) => scan.boxId === box.id);
+				box.scans = newScans;
+			});
+
+			const indexing = indexStatusChanges(boxes);
+			await Box.bulkWrite(indexing);
+
+			return res.status(200).json({ updated, matched, recalculated });
 		});
 	} catch (error) {
 		console.error(error);
 		return res.status(400).json({ success: false, error: error });
+	}
+});
+
+router.post('/boxes/reindex', async (req, res) => {
+	try {
+		requireApiKey(req, res, async (admin) => {
+			const boxes = await Box.find({ adminId: admin.id });
+			if (!boxes.length)
+				return res.status(404).json({ error: `No boxes available` });
+
+			const scans = await Scan.find({ boxId: { $in: boxes.map((box) => box.id) } });
+
+			boxes.forEach((box) => {
+				const newScans = scans.filter((scan) => scan.boxId === box.id);
+				box.scans = newScans;
+			});
+
+			const indexing = indexStatusChanges(boxes);
+			const response = await Box.bulkWrite(indexing);
+
+			return res.status(200).json({ reindexed: response.modifiedCount });
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error });
+	}
+});
+
+router.post('/boxes/recalculate', async (req, res) => {
+	try {
+		requireApiKey(req, res, async (admin) => {
+			const boxes = await Box.find({ adminId: admin.id });
+			if (!boxes.length)
+				return res.status(404).json({ error: `No boxes available` });
+
+			const scans = await Scan.find({ boxId: { $in: boxes.map((box) => box.id) } });
+
+			const scansUpdate = [];
+
+			scans.forEach((scan) => {
+				const box = boxes.find((box) => box.id === scan.boxId);
+				if (!box) return;
+				const schoolCoords = {
+					latitude: box.schoolLatitude,
+					longitude: box.schoolLongitude,
+				};
+				const scanCoords = {
+					latitude: scan.location.coords.latitude,
+					longitude: scan.location.coords.longitude,
+				};
+				const newFinalDestination = isFinalDestination(schoolCoords, scanCoords);
+
+				if (newFinalDestination !== scan.finalDestination) {
+					scan.finalDestination = newFinalDestination;
+					scansUpdate.push({
+						updateOne: {
+							filter: { id: scan.id },
+							update: { $set: { finalDestination: scan.finalDestination } },
+						},
+					});
+				}
+			});
+
+			const scansUpdateResponse = await Scan.bulkWrite(scansUpdate);
+			const recalculated = scansUpdateResponse.modifiedCount;
+
+			boxes.forEach((box) => {
+				const newScans = scans.filter((scan) => scan.boxId === box.id);
+				box.scans = newScans;
+			});
+
+			const indexing = indexStatusChanges(boxes);
+			const response = await Box.bulkWrite(indexing);
+
+			return res.status(200).json({ recalculated, reindexed: response.modifiedCount });
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error });
 	}
 });
 
