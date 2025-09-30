@@ -196,7 +196,6 @@ export async function updateGPSCoordinates(file, setOutput) {
 			let uploaded = 0;
 			let uploadedBytes = 0;
 			let updated = 0;
-			let recalculated = 0;
 			const responses = [];
 
 			const processBuffer = (buffer) => {
@@ -212,8 +211,7 @@ export async function updateGPSCoordinates(file, setOutput) {
 						responses.push(res);
 						uploaded += buffer.length;
 						uploadedBytes += JSON.stringify({boxes: buffer}).length;
-						updated += res.updatedCount;
-						recalculated = res.recalculatedCount;
+						updated += res.updated || 0;
 						setOutput(prev => {
 							return [...prev,
 								`${res.updated} objects updated.`,

@@ -12,8 +12,7 @@ export const colors = {
 };
 
 // The corresponding API URL
-export const API_URL =
-						process.env.NODE_ENV === 'development'
+export const API_URL = process.env.NODE_ENV === 'development'
 						?
 						'http://localhost:3000/api'
 						:

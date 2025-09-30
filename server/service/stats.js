@@ -8,6 +8,7 @@
  *	@property {Date} time
  *	@property {boolean} finalDestination
  *	@property {boolean} markedAsReceived
+ *	@property {string} comment
  */
 
 /**

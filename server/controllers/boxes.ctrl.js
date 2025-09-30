@@ -256,4 +256,83 @@ router.post('/coords', async (req, res) => {
 	}
 });
 
+router.post('/boxes/reindex', async (req, res) => {
+	try {
+		requireApiKey(req, res, async (admin) => {
+			const boxes = await Box.find({ adminId: admin.id });
+			if (!boxes.length)
+				return res.status(404).json({ error: `No boxes available` });
+
+			const scans = await Scan.find({ boxId: { $in: boxes.map((box) => box.id) } });
+
+			boxes.forEach((box) => {
+				const newScans = scans.filter((scan) => scan.boxId === box.id);
+				box.scans = newScans;
+			});
+
+			const indexing = indexStatusChanges(boxes);
+			const response = await Box.bulkWrite(indexing);
+
+			return res.status(200).json({ reindexed: response.modifiedCount });
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error });
+	}
+});
+
+router.post('/boxes/recalculate', async (req, res) => {
+	try {
+		requireApiKey(req, res, async (admin) => {
+			const boxes = await Box.find({ adminId: admin.id });
+			if (!boxes.length)
+				return res.status(404).json({ error: `No boxes available` });
+
+			const scans = await Scan.find({ boxId: { $in: boxes.map((box) => box.id) } });
+
+			const scansUpdate = [];
+
+			scans.forEach((scan) => {
+				const box = boxes.find((box) => box.id === scan.boxId);
+				if (!box) return;
+				const schoolCoords = {
+					latitude: box.schoolLatitude,
+					longitude: box.schoolLongitude,
+				};
+				const scanCoords = {
+					latitude: scan.location.coords.latitude,
+					longitude: scan.location.coords.longitude,
+				};
+				const newFinalDestination = isFinalDestination(schoolCoords, scanCoords);
+
+				if (newFinalDestination !== scan.finalDestination) {
+					scan.finalDestination = newFinalDestination;
+					scansUpdate.push({
+						updateOne: {
+							filter: { id: scan.id },
+							update: { $set: { finalDestination: scan.finalDestination } },
+						},
+					});
+				}
+			});
+
+			const scansUpdateResponse = await Scan.bulkWrite(scansUpdate);
+			const recalculated = scansUpdateResponse.modifiedCount;
+
+			boxes.forEach((box) => {
+				const newScans = scans.filter((scan) => scan.boxId === box.id);
+				box.scans = newScans;
+			});
+
+			const indexing = indexStatusChanges(boxes);
+			const response = await Box.bulkWrite(indexing);
+
+			return res.status(200).json({ recalculated, reindexed: response.modifiedCount });
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error });
+	}
+});
+
 export default router;

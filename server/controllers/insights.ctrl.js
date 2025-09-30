@@ -173,8 +173,10 @@ router.post('/report', async (req, res) => {
 					received: Number(Boolean(lastMarkedAsReceivedScan)),
 					receivedDistanceInMeters,
 					receivedDate: lastMarkedAsReceivedScan ? new Date(lastMarkedAsReceivedScan?.location.timestamp).toLocaleDateString() : '',
+					receivedComment: lastMarkedAsReceivedScan?.comment || '',
 					validated: Number(Boolean(lastValidatedScan)),
 					validatedDate: lastValidatedScan ? new Date(lastValidatedScan?.location.timestamp).toLocaleDateString() : '',
+					validatedComment: lastValidatedScan?.comment || '',
 					...(box.content || {}),
 				}
 
@@ -205,10 +207,11 @@ router.get('/emails', async (req, res) => {
 		if (!admin)
 			return res.status(404).json({ error: `Admin not found` });
 
-		if (admin.publicInsights || req.headers['x-authorization'] === admin.apiKey) {
-			const emails = admin.projectEmails || {};
-			return res.status(200).json({ emails });
+		if (!admin.publicInsights && req.headers['x-authorization'] !== admin.apiKey) {
+			return res.status(401).json({ error: `Unauthorized` });
 		}
+		const emails = admin.projectEmails || {};
+		return res.status(200).json({ emails });
 	}
 	catch (error) {
 		console.error(error);
